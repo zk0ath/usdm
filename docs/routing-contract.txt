@@ -1,0 +1,19 @@
+Routing Contract
+// Initialize Routing Contract
+- Initialize supported paths from Factory Contract
+
+// Find Best Route
+function FindBestRoute(tokenA, tokenB, amount):
+  - Check supported paths
+  - Calculate best path and estimated amount_out
+  - Return best path and estimated amount_out
+
+// Execute Swap
+function ExecuteSwap(user, path[], amount_in, amount_out_min):
+  - best_path, estimated_amount_out = FindBestRoute(path[0], path[-1], amount_in)
+  - Verify Zk-SNARK proof
+  - Check estimated_amount_out >= amount_out_min
+  - Loop through best_path:
+    - Call Swap() on each Pair Contract
+  - Transfer final tokens to user
+  - Log 'SwapExecuted' event
