@@ -1,7 +1,7 @@
 
 <template>
   <Head>
-    <Title>Mina zkApp UI</Title>
+    <Title>USDM</Title>
   </Head>
   <GradientBG>
     <main class="main">
@@ -29,6 +29,12 @@
         Get started by editing
         <code class="code">pages/index.vue</code>
       </p>
+      <div class="stablecoin-actions">
+        <BalanceCheck />
+        <TransferCoin />
+        <MintCoin />
+        <BurnCoin />
+      </div>
       <div class="grid">
         <a
           href="https://docs.minaprotocol.com/zkapps"
@@ -116,9 +122,19 @@
 </template>
 
 <script lang="ts">
-import GradientBG from '~/components/GradientBG.vue'
+import GradientBG from '~/components/GradientBG.vue'; 
+import BalanceCheck from '~/components/BalanceCheck.vue';
+import TransferCoin from '~/components/Transfer.vue';
+import MintCoin from '~/components/Mint.vue';
+import BurnCoin from '~/components/Burn.vue';
 
 export default {
+  components: {
+    BalanceCheck,
+    TransferCoin,
+    MintCoin,
+    BurnCoin,
+  },
   setup() {
     onMounted(async () => {
       const { Mina, PublicKey } = await import('o1js')
