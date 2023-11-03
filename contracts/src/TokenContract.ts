@@ -8,6 +8,7 @@ import {
   UInt64,
   PublicKey,
   Signature,
+  Mina
 } from 'o1js';
 
 const tokenSymbol = 'USDM';
@@ -65,6 +66,11 @@ export class TokenContract extends SmartContract {
     amount: UInt64,
     adminSignature: Signature
   ) {
+    const burnerBalance = this.getBalance(burnerAddress);
+    if (burnerBalance < amount.toBigInt()) {
+      throw new Error('Burner does not have enough balance to burn the specified amount of tokens.');
+    }
+
     let currentTotalSupply = this.totalSupply.get();
     this.totalSupply.assertEquals(currentTotalSupply);
 
@@ -86,4 +92,33 @@ export class TokenContract extends SmartContract {
     this.totalSupply.set(newTotalSupply);
   }
 
+  @method transfer(
+    senderAddress: PublicKey,
+    receiverAddress: PublicKey,
+    amount: UInt64,
+    senderSignature: Signature
+  ) {
+    const senderBalance = this.getBalance(senderAddress);
+    if (senderBalance < amount.toBigInt()) {
+      throw new Error('Sender does not have enough balance to transfer the specified amount of tokens.');
+    }
+    
+    senderSignature
+      .verify(
+        this.address,
+        amount.toFields().concat(senderAddress.toFields()).concat(receiverAddress.toFields())
+      )
+      .assertTrue();
+
+    // Then perform the transfer by calling the built-in token transfer function
+    this.token.send({
+      from: senderAddress,
+      to: receiverAddress,
+      amount,
+    });
+  }
+
+  @method getBalance(address: PublicKey) : bigint {
+    return Mina.getBalance(address).toBigInt();
+  }
 }
