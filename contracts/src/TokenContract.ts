@@ -16,8 +16,8 @@ const tokenSymbol = 'USDM';
 export class TokenContract extends SmartContract {
   @state(UInt64) totalSupply = State<UInt64>();
 
-  deploy(args: DeployArgs) {
-    super.deploy(args);
+  deploy() {
+    super.deploy();
 
     const permissionToEdit = Permissions.proof();
 
