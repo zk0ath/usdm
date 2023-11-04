@@ -58,4 +58,38 @@ describe('TokenContract', () => {
     const newTotalSupply = zkApp.totalSupply.get();
     expect(newTotalSupply).toEqual(amountToMint);
   });
+
+  it('burns tokens and decreases totalSupply', async () => {
+    await localDeploy();
+
+    const amountToBurn = UInt64.from(500);
+    const adminSignature = adminKey.sign(zkAppAddress.toString() + amountToBurn.toString() + userAccount.toString());
+
+    const txn = await Mina.transaction(adminAccount, () => {
+      zkApp.burn(userAccount, amountToBurn, adminSignature);
+    });
+    await txn.prove();
+    await txn.sign([adminKey]).send();
+
+    const newTotalSupply = zkApp.totalSupply.get();
+    expect(newTotalSupply).toEqual(UInt64.zero.sub(amountToBurn));
+  });
+
+  it('transfers tokens and updates balances correctly', async () => {
+    await localDeploy();
+
+    const amountToTransfer = UInt64.from(200);
+    const senderSignature = userKey.sign(
+      zkAppAddress.toString() + amountToTransfer.toString() + userAccount.toString() + adminAccount.toString()
+    );
+
+    const txn = await Mina.transaction(userAccount, () => {
+      zkApp.transfer(userAccount, adminAccount, amountToTransfer, senderSignature);
+    });
+    await txn.prove();
+    await txn.sign([userKey]).send();
+
+    const senderBalance = zkApp.getBalance(userAccount);
+    const receiverBalance = zkApp.getBalance(adminAccount);
+  });
 });
