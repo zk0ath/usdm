@@ -1,95 +1,99 @@
 import {
-  SmartContract,
-  state,
   State,
-  method,
-  DeployArgs,
-  Permissions,
+  state,
   UInt64,
+  Bool,
+  SmartContract,
+  Mina,
+  PrivateKey,
+  AccountUpdate,
+  method,
   PublicKey,
-  Signature,
-  Mina
+  Permissions,
+  VerificationKey,
+  Field,
+  Experimental,
+  Int64,
+  TokenId, Signature, Provable
 } from 'o1js';
 
 const tokenSymbol = 'USDM';
 
 export class TokenContract extends SmartContract {
-  @state(UInt64) totalSupply = State<UInt64>();
+  SUPPLY = UInt64.from(10n ** 18n);
+  @state(UInt64) totalAmountInCirculation = State<UInt64>();
 
-  deploy() {
-    super.deploy();
+  @method deployTokenContract(address: PublicKey, verificationKey: VerificationKey) {
+    let tokenId = this.token.id;
+    let zkapp = AccountUpdate.defaultAccountUpdate(address, tokenId);
+    this.approve(zkapp);
+    zkapp.account.permissions.set(Permissions.default());
+    zkapp.account.verificationKey.set(verificationKey);
+    zkapp.requireSignature();
+  }
 
-    const permissionToEdit = Permissions.proof();
+  init() {
+    super.init();
+    let address = this.address;
+    let receiver = this.token.mint({
+      address,
+      amount: this.SUPPLY,
+    });
+    receiver.account.isNew.assertEquals(Bool(true));
+    this.balance.subInPlace(Mina.accountCreationFee());
 
+    // Set the total amount in circulation to match the total supply
+    this.totalAmountInCirculation.set(this.SUPPLY);
+
+    // Set more restrictive permissions for the smart contract
     this.account.permissions.set({
       ...Permissions.default(),
-      editState: permissionToEdit,
-      setTokenSymbol: permissionToEdit,
-      send: permissionToEdit,
-      receive: permissionToEdit,
+      editState: Permissions.proofOrSignature(),
+      send: Permissions.proof(),
+      receive: Permissions.proof(),
+      access: Permissions.proofOrSignature(),
     });
   }
 
-  @method init() {
-    super.init();
-    this.account.tokenSymbol.set(tokenSymbol);
-    this.totalSupply.set(UInt64.zero);
-  }
+  @method mint(receiverAddress: PublicKey, amount: UInt64) {
+    let totalAmountInCirculation = this.totalAmountInCirculation.get();
 
-  @method mint(
-    receiverAddress: PublicKey,
-    amount: UInt64,
-    adminSignature: Signature
-  ) {
-    let currentTotalSupply = this.totalSupply.get();
-    this.totalSupply.assertEquals(currentTotalSupply);
+    this.totalAmountInCirculation.assertEquals(totalAmountInCirculation);
+    let newTotalAmountInCirculation = totalAmountInCirculation.add(amount);
 
-    let newTotalSupply = currentTotalSupply.add(amount);
-
-    adminSignature
-      .verify(
-        this.address,
-        amount.toFields().concat(receiverAddress.toFields())
-      )
-      .assertTrue();
-
+    // Ensure minting does not exceed total supply
+    newTotalAmountInCirculation.assertGreaterThan(
+      this.SUPPLY,
+      "Cannot mint more than the total supply"
+    );
     this.token.mint({
       address: receiverAddress,
       amount,
     });
 
-    this.totalSupply.set(newTotalSupply);
+    // Update the total amount in circulation after minting
+    this.totalAmountInCirculation.set(newTotalAmountInCirculation);
   }
 
-  @method burn(
-    burnerAddress: PublicKey,
-    amount: UInt64,
-    adminSignature: Signature
-  ) {
-    const burnerBalance = this.getBalance(burnerAddress);
-    if (burnerBalance < amount.toBigInt()) {
-      throw new Error('Burner does not have enough balance to burn the specified amount of tokens.');
-    }
+  @method burn(senderAddress: PublicKey, amount: UInt64) {
+    let totalAmountInCirculation = this.totalAmountInCirculation.get();
+    this.totalAmountInCirculation.assertEquals(totalAmountInCirculation);
 
-    let currentTotalSupply = this.totalSupply.get();
-    this.totalSupply.assertEquals(currentTotalSupply);
+    // Ensure we do not burn more than what is in circulation
+    totalAmountInCirculation.assertGreaterThanOrEqual(
+      amount,
+      "Cannot burn more tokens than are in circulation"
+    );
 
-    currentTotalSupply.sub(amount).assertGreaterThanOrEqual(UInt64.zero);
-
-    adminSignature
-      .verify(
-        this.address,
-        amount.toFields().concat(burnerAddress.toFields())
-      )
-      .assertTrue();
+    let newTotalAmountInCirculation = totalAmountInCirculation.sub(amount);
 
     this.token.burn({
-      address: burnerAddress,
+      address: senderAddress,
       amount,
     });
 
-    let newTotalSupply = currentTotalSupply.sub(amount);
-    this.totalSupply.set(newTotalSupply);
+    // Update the total amount in circulation after the burn
+    this.totalAmountInCirculation.set(newTotalAmountInCirculation);
   }
 
   @method transfer(
@@ -99,10 +103,10 @@ export class TokenContract extends SmartContract {
     senderSignature: Signature
   ) {
     const senderBalance = this.getBalance(senderAddress);
-    if (senderBalance < amount.toBigInt()) {
-      throw new Error('Sender does not have enough balance to transfer the specified amount of tokens.');
-    }
     
+    senderBalance.assertLessThan(amount)
+    
+
     senderSignature
       .verify(
         this.address,
@@ -118,7 +122,10 @@ export class TokenContract extends SmartContract {
     });
   }
 
-  @method getBalance(address: PublicKey) : bigint {
-    return Mina.getBalance(address).toBigInt();
+  @method getBalance(address: PublicKey): UInt64 {
+    let accountUpdate = AccountUpdate.create(address);
+    let balance = accountUpdate.account.balance.get();
+    accountUpdate.account.balance.assertEquals(balance);
+    return balance;
   }
 }
