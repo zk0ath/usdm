@@ -243,9 +243,9 @@ export default function Home() {
         >
           Send Transaction
         </button>
-        <button className={styles.card} onClick={onRefreshCurrentNum}>
+        {/* <button className={styles.card} onClick={onRefreshCurrentNum}>
           Get Latest State
-        </button>
+        </button> */}
       </div>
     );
   }
