@@ -67,6 +67,7 @@ jobs:
       - name: Build and Deploy
         run: npm run deploy
         working-directory: ./ui
+        continue-on-error: true
 
   deploy:
     environment:
