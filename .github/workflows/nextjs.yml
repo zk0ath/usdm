@@ -45,6 +45,16 @@ jobs:
             ${{ runner.os }}-nextjs-${{ hashFiles('ui/**/package-lock.json') }}-
       
       
+      
+        
+      - name: Constract npm install 
+        run: npm install
+        working-directory: ./contracts
+
+      - name: Constract npm install 
+        run: npm run build
+        working-directory: ./contracts
+        
       - name: Install dependencies
         run: npm ci
         working-directory: ./ui
