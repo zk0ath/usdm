@@ -51,7 +51,7 @@ jobs:
 
       
       - name: Build and Deploy
-        run: npm deploy
+        run: npm run deploy
         working-directory: ./ui
 
   deploy:
