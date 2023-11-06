@@ -17,9 +17,6 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ui
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -34,22 +31,27 @@ jobs:
         uses: actions/configure-pages@v3
         with:
           static_site_generator: next
-          
+
+      
       - name: Cache dependencies
         uses: actions/cache@v3
         with:
           path: |
-            .next/cache
-            node_modules
-          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-${{ hashFiles('**.[jt]s', '**.[jt]sx') }}
+            ui/.next/cache
+            ui/node_modules
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('ui/**/package-lock.json') }}-${{ hashFiles('ui/**/*.[jt]s', 'ui/**/*.[jt]sx') }}
           restore-keys: |
-            ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-
-
+            ${{ runner.os }}-nextjs-${{ hashFiles('ui/**/package-lock.json') }}-
+      
+      
       - name: Install dependencies
         run: npm ci
+        working-directory: ./ui
 
+      
       - name: Build and Deploy
         run: npm deploy
+        working-directory: ./ui
 
   deploy:
     environment:
