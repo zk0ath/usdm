@@ -1,34 +1,47 @@
 {
-    "version": "0.2.0",
-    "configurations": [
-      {
-        "type": "node",
-        "request": "launch",
-        "name": "Debug Jest Tests",
-        "runtimeExecutable": "npm",
-        "runtimeArgs": [
-          "run-script",
-          "test",
-          "--",
-          "--runInBand",
-          "--watchAll=false"
-        ],
-        "args": [
-          "--coverage=false" // Add additional Jest CLI options as needed
-        ],
-        "console": "integratedTerminal",
-        "internalConsoleOptions": "neverOpen",
-        "disableOptimisticBPs": true,
-        "smartStep": true,
-        "sourceMaps": true,
-        "cwd": "${workspaceFolder}/contracts",
-        "protocol": "inspector",
-        "env": {
-          "NODE_ENV": "test"
-        },
-        "preLaunchTask": "npm: build",
-        "port": 9229 // This port number should be unique and not used by other processes
-      }
-    ]
-  }
-  
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug Jest Tests",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "run-script",
+        "test",
+        "--",
+        "--runInBand",
+        "--watchAll=false"
+      ],
+      "args": [
+        "--coverage=false" // Add additional Jest CLI options as needed
+      ],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "smartStep": true,
+      "sourceMaps": true,
+      "cwd": "${workspaceFolder}/contracts",
+      "env": {
+        "NODE_ENV": "test"
+      },
+      "preLaunchTask": "npm: build"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug UI Project",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "run",
+        "dev"
+      ],
+      "env": {
+        "BROWSER": "none" // Prevents Next.js from opening a browser automatically
+      },
+      "cwd": "${workspaceFolder}/ui",
+      "console": "integratedTerminal",
+      "restart": true,
+      "autoAttachChildProcesses": true
+    }
+  ]
+}
