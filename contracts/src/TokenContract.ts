@@ -18,7 +18,7 @@ export class TokenContract extends SmartContract {
   init() {
     super.init();
     // Set the total amount in circulation to match the total supply
-    this.account.tokenSymbol.set(tokenSymbol);
+    this.account.tokenSymbol.set("USDM");
     this.totalAmountInCirculation.set(UInt64.zero);
   
     // Set more restrictive permissions for the smart contract
@@ -76,6 +76,11 @@ export class TokenContract extends SmartContract {
   }
 
   @method getBalance(address: PublicKey): UInt64 {
-    return Mina.getBalance(address, this.token.id);
+    let accountUpdate = AccountUpdate.create(address, this.token.id);
+    let balance = accountUpdate.account.balance.get();
+    accountUpdate.account.balance.assertEquals(
+      accountUpdate.account.balance.get()
+    );
+    return balance;
   }
 }
