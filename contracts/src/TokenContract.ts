@@ -18,8 +18,9 @@ export class TokenContract extends SmartContract {
   init() {
     super.init();
     // Set the total amount in circulation to match the total supply
-    this.totalAmountInCirculation.set(UInt64.from(0n));
-
+    this.account.tokenSymbol.set(tokenSymbol);
+    this.totalAmountInCirculation.set(UInt64.zero);
+  
     // Set more restrictive permissions for the smart contract
     this.account.permissions.set({
       ...Permissions.default(),
