@@ -6,7 +6,7 @@ This repository hosts the USDM stablecoin zkApp project, which comprises two mai
 
 The USDM stablecoin project aims to create a cryptocurrency that is pegged to the US Dollar (USD) on a 1:1 basis. This stablecoin provides the benefits of blockchain technology, such as transparency, security, and immutability, while maintaining a stable value equivalent to fiat currency. It achieves this through a collateral-backed framework, where each minted USDM token is backed by an equivalent amount of USD held in a reserve.
 
- - For more details : https://uneven-asparagus-47e.notion.site/Minting-and-Burning-Process-Diagram-cdf9915414d5493ba8d3885fa0641eb4?pvs=4
+ - For more details : https://uneven-asparagus-47e.notion.site/USDM-Stablecoin-6217ce83e3e94f6ab174a1abe3ad7c5c
 
 ## Contracts Project
 
