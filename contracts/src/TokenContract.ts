@@ -8,8 +8,9 @@ import {
   method,
   PublicKey,
   Permissions,
-  VerificationKey,Signature, fetchAccount, Bool
+  VerificationKey,Signature, fetchAccount, Bool, Provable
 } from 'o1js';
+import { Prover } from 'o1js/dist/node/lib/proof_system';
 
 
 export class TokenContract extends SmartContract {
@@ -26,7 +27,8 @@ export class TokenContract extends SmartContract {
       ...Permissions.default(),
       editState: Permissions.proofOrSignature(),
       send: Permissions.proof(),
-      receive: Permissions.proof()
+      receive: Permissions.proof(),
+      access: Permissions.proofOrSignature(),
     });
   }
 

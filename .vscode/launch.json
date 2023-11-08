@@ -38,7 +38,7 @@
         "cwd": "${workspaceFolder}/ui",
         "console": "integratedTerminal",
         "restart": true,
-        "autoAttachChildProcesses": true
+        "autoAttachChildProcesses": false
       }
     ]
   }

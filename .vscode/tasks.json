@@ -28,8 +28,7 @@
         "type": "shell",
         "command": "npm",
         "args": [
-          "run",
-          "build"
+          "dev"
         ],
         "options": {
           "cwd": "${workspaceFolder}/ui"

@@ -37,11 +37,13 @@ const functions = {
     const publicKey = PublicKey.fromBase58(args.publicKey58);
     state.zkapp = new state.TokenContract!(publicKey);
   },
-  createMintTransaction: async (args: { publicKey58: string, amount: UInt64}) => {
-    const { publicKey58, amount } = args;
+  createMintTransaction: async (args: { publicKey: PublicKey, amount: UInt64}) => {
+    const { publicKey, amount } = args;
+    
     const transaction = await Mina.transaction(() => {
-      state.zkapp!.mint(PublicKey.fromBase58(publicKey58), amount);
+      state.zkapp!.mint(publicKey, amount);
     });
+    
     state.transaction = transaction;
   },
   proveUpdateTransaction: async (args: {}) => {

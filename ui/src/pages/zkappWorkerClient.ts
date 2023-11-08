@@ -38,7 +38,8 @@ export default class ZkappWorkerClient {
     });
   }
 
-  createMintTransaction(publicKey: PublicKey, amount: UInt64) {
+  async createMintTransaction(publicKey: PublicKey, amount: UInt64) {
+    console.log('createMintTransaction', publicKey, amount);
     return this._call('createMintTransaction', {publicKey, amount});
   }
 
