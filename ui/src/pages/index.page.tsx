@@ -4,7 +4,6 @@ import ZkappWorkerClient from './zkappWorkerClient';
 import { PublicKey, Field, UInt64 } from 'o1js';
 import GradientBG from '../components/GradientBG.js';
 import styles from '../styles/Home.module.css';
-import { useAsyncOperation } from './useAsyncOperation';
 import { FaSpinner } from 'react-icons/fa';
 
 let transactionFee = 0.1;
@@ -25,7 +24,6 @@ export default function Home() {
   const [transactionlink, setTransactionLink] = useState('');
 
   const [mintAmount, setMintAmount] = useState(0);
-  const { execute, status, error } = useAsyncOperation();
 
   const loadingSpinner = (
     <div className="flex justify-center items-center">
@@ -71,9 +69,7 @@ export default function Home() {
         setDisplayText('Checking if fee payer account exists...');
         console.log('Checking if fee payer account exists...');
 
-        const res = await zkappWorkerClient.fetchAccount({
-          publicKey: publicKey!
-        });
+        const res = await zkappWorkerClient.fetchAccount(publicKey);
         const accountExists = res.error == null;
 
         await zkappWorkerClient.loadContract();
@@ -92,7 +88,7 @@ export default function Home() {
 
         console.log('Getting zkApp state...');
         setDisplayText('Getting zkApp state...');
-        await zkappWorkerClient.fetchAccount({ publicKey: zkappPublicKey });
+        await zkappWorkerClient.fetchAccount(publicKey);
 
         setDisplayText('');
 
@@ -145,68 +141,60 @@ export default function Home() {
   // Send a transaction
 
   const onSendTransaction = async () => {
-    await execute(async () => {
-      setState({ ...state, creatingTransaction: true });
-      setDisplayText('Creating a transaction...');
-      console.log('Creating a transaction...');
+    setState({ ...state, creatingTransaction: true });
+    setDisplayText('Creating a transaction...');
+    console.log('Creating a transaction...');
 
-      await state.zkappWorkerClient!.fetchAccount({
-        publicKey: state.publicKey!
-      });
+    await state.zkappWorkerClient!.fetchAccount(state.publicKey!);
 
-      const amountToMint = UInt64.from(Number(mintAmount));
-      console.log(`Minting ${amountToMint.toString()} tokens...`);
-      if (state.publicKey) {
-        await state.zkappWorkerClient!.createMintTransaction(state.publicKey, amountToMint);
+    const amountToMint = UInt64.from(mintAmount);
+    console.log(`Minting ${amountToMint.toString()} tokens...`);
+    if (state.publicKey) {
+      await state.zkappWorkerClient!.createMintTransaction(state.publicKey, amountToMint);
+    }
+    console.log('Mint transaction created');
+
+    setDisplayText('Creating proof...');
+    console.log('Creating proof...');
+    await state.zkappWorkerClient!.proveUpdateTransaction();
+
+    console.log('Requesting send transaction...');
+    setDisplayText('Requesting send transaction...');
+    const transactionJSON = await state.zkappWorkerClient!.getTransactionJSON();
+
+    setDisplayText('Getting transaction JSON...');
+    console.log('Getting transaction JSON...');
+    const { hash } = await (window as any).mina.sendTransaction({
+      transaction: transactionJSON,
+      feePayer: {
+        fee: transactionFee,
+        memo: ''
       }
-      console.log('Mint transaction created');
-
-      setDisplayText('Creating proof...');
-      console.log('Creating proof...');
-      await state.zkappWorkerClient!.proveUpdateTransaction();
-
-      console.log('Requesting send transaction...');
-      setDisplayText('Requesting send transaction...');
-      const transactionJSON = await state.zkappWorkerClient!.getTransactionJSON();
-
-      setDisplayText('Getting transaction JSON...');
-      console.log('Getting transaction JSON...');
-      const { hash } = await (window as any).mina.sendTransaction({
-        transaction: transactionJSON,
-        feePayer: {
-          fee: transactionFee,
-          memo: ''
-        }
-      });
-      const transactionLink = `https://berkeley.minaexplorer.com/transaction/${hash}`;
-      console.log(`View transaction at ${transactionLink}`);
-
-      setTransactionLink(transactionLink);
-      setDisplayText(transactionLink);
-
-      setState({ ...state, creatingTransaction: false });
     });
+    const transactionLink = `https://berkeley.minaexplorer.com/transaction/${hash}`;
+    console.log(`View transaction at ${transactionLink}`);
+
+    setTransactionLink(transactionLink);
+    setDisplayText(transactionLink);
+
+    setState({ ...state, creatingTransaction: false });
   };
 
   // -------------------------------------------------------
   // Refresh the current state
 
   const onRefreshCurrentNum = async () => {
-    await execute(async () => {
-      console.log('Getting zkApp state...');
+    console.log('Getting zkApp state...');
       setDisplayText('Getting zkApp state...');
-  
-      await state.zkappWorkerClient!.fetchAccount({
-        publicKey: state.zkappPublicKey!
-      });
-  
+
+      await state.zkappWorkerClient!.fetchAccount(state.zkappPublicKey!);
+
       // If you have additional logic to update the state with the fetched data, you can uncomment and adjust the following lines
       // const currentNum = await state.zkappWorkerClient!.getNum();
       // setState({ ...state, currentNum });
       // console.log(`Current state in zkApp: ${currentNum.toString()}`);
-  
+
       setDisplayText(''); // Clear display text or update it with relevant information
-    });
   };
 
   // -------------------------------------------------------
@@ -286,7 +274,7 @@ export default function Home() {
   return (
     <GradientBG>
       <div className={styles.main} style={{ padding: 0 }}>
-        {status === 'pending' && loadingSpinner} {/* This line includes the spinner based on status */}
+        {loadingSpinner} {/* This line includes the spinner based on status */}
         <div className={styles.center} style={{ padding: 0 }}>
           {setup}
           {accountDoesNotExist}

@@ -35,10 +35,12 @@
         "env": {
           "BROWSER": "none" // Prevents Next.js from opening a browser automatically
         },
+        "sourceMaps": true,
+        "smartStep": true,
         "cwd": "${workspaceFolder}/ui",
         "console": "integratedTerminal",
         "restart": true,
-        "autoAttachChildProcesses": false
+        "autoAttachChildProcesses": true
       }
     ]
   }
