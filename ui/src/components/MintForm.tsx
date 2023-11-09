@@ -1,36 +1,58 @@
-import { Dispatch, SetStateAction } from 'react';
+import React from 'react';
 
 type MintFormProps = {
   mintAmount: number;
-  setMintAmount: Dispatch<SetStateAction<number>>;
+  setMintAmount: React.Dispatch<React.SetStateAction<number>>;
+  mintRecipientAddress: string;
+  setMintRecipientAddress: React.Dispatch<React.SetStateAction<string>>;
   onMintTokens: () => void;
 };
 
 const MintForm: React.FC<MintFormProps> = ({
   mintAmount,
   setMintAmount,
+  mintRecipientAddress,
+  setMintRecipientAddress,
   onMintTokens,
 }) => {
   return (
-    <div className="flex flex-col space-y-2 items-center">
-      <input
-        type="number"
-        value={mintAmount}
-        onChange={(e) => setMintAmount(Number(e.target.value))}
-        className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-sm shadow-sm placeholder-gray-400
-                  focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500
-                  disabled:bg-gray-100 disabled:text-gray-500 disabled:border-gray-200 disabled:shadow-none
-                  invalid:border-pink-500 invalid:text-pink-600
-                  focus:invalid:border-pink-500 focus:invalid:ring-pink-500"
-        min="0" // Assuming mintAmount can't be negative
-      />
+    <section className="flex flex-col items-center p-4 bg-gray-50 rounded-lg shadow space-y-3">
+      <h2 className="text-lg font-semibold text-gray-700">Mint Your Tokens</h2>
+      <div className="w-full">
+        <label htmlFor="mintAmount" className="sr-only">Amount to Mint</label>
+        <input
+          id="mintAmount"
+          type="number"
+          value={mintAmount.toString()}
+          onChange={(e) => setMintAmount(Number(e.target.value))}
+          className="w-full p-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 
+                    focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 
+                    disabled:bg-gray-100 disabled:text-gray-500 disabled:border-gray-200 
+                    invalid:border-red-500 invalid:text-red-600 
+                    focus:invalid:border-red-500 focus:invalid:ring-red-500"
+          min="0"
+        />
+      </div>
+      <div className="w-full">
+        <label htmlFor="mintRecipientAddress" className="sr-only">Recipient Address</label>
+        <input
+          id="mintRecipientAddress"
+          type="text"
+          value={mintRecipientAddress}
+          onChange={(e) => setMintRecipientAddress(e.target.value)}
+          className="w-full p-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 
+                    focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 
+                    disabled:bg-gray-100 disabled:text-gray-500 disabled:border-gray-200"
+          placeholder="Recipient's Address"
+        />
+      </div>
       <button
         onClick={onMintTokens}
-        className="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50"
+        className="w-full px-5 py-3 text-sm font-medium text-white transition-colors duration-150 bg-green-600 rounded-lg hover:bg-green-700 focus:ring-4 focus:ring-green-300 focus:outline-none"
       >
         Mint Tokens
       </button>
-    </div>
+    </section>
   );
 };
 
