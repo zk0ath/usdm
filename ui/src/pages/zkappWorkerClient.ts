@@ -61,8 +61,8 @@ export default class ZkappWorkerClient {
     });
   }
 
-  createMintTransaction(publicKey: PublicKey, amount: UInt64): Promise<void> {
-    return this._call('createMintTransaction', { publicKey, amount });
+  createMintTransaction(publicKey58: string, amount: number): Promise<void> {
+    return this._call('createMintTransaction', { publicKey58, amount });
   }
 
   proveUpdateTransaction(): Promise<void> {

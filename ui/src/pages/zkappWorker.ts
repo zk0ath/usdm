@@ -21,8 +21,8 @@ interface FetchAccountArgs {
 }
 
 interface CreateMintTransactionArgs {
-  publicKey: PublicKey;
-  amount: UInt64;
+  publicKey58: string;
+  amount: number;
 }
 
 // Define a dictionary to hold the functions for easier management and extensibility
@@ -47,9 +47,9 @@ const functions: Record<string, Function> = {
     const publicKey = PublicKey.fromBase58(publicKey58);
     if (state.TokenContract) state.zkapp = new state.TokenContract(publicKey);
   },
-  createMintTransaction: async ({ publicKey, amount }: CreateMintTransactionArgs) => {
+  createMintTransaction: async ({ publicKey58, amount }: CreateMintTransactionArgs) => {
     const transaction = await Mina.transaction(() => {
-      state.zkapp?.mint(publicKey, amount);
+      state.zkapp?.mint(PublicKey.fromBase58(publicKey58), UInt64.from(amount));
     });
     state.transaction = transaction;
   },

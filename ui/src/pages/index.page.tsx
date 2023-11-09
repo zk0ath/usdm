@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import './reactCOIServiceWorker';
 import ZkappWorkerClient from './zkappWorkerClient';
-import { PublicKey, Field, UInt64 } from 'o1js';
+import { PublicKey } from 'o1js';
 import GradientBG from '../components/GradientBG.js';
 import styles from '../styles/Home.module.css';
 import { FaSpinner } from 'react-icons/fa';
@@ -145,14 +145,15 @@ export default function Home() {
     setDisplayText('Creating a transaction...');
     console.log('Creating a transaction...');
 
-    await state.zkappWorkerClient!.fetchAccount(state.publicKey!);
+    if (state.zkappWorkerClient) {
+      await state.zkappWorkerClient.fetchAccount(state.publicKey!);
 
-    const amountToMint = UInt64.from(mintAmount);
-    console.log(`Minting ${amountToMint.toString()} tokens...`);
-    if (state.publicKey) {
-      await state.zkappWorkerClient!.createMintTransaction(state.publicKey, amountToMint);
+      console.log(`Minting ${mintAmount} tokenss...`);
+      console.log('Public Key, ', state.publicKey?.toBase58())
+      
+      await state.zkappWorkerClient.createMintTransaction(state.publicKey?.toBase58()!, mintAmount);
+      console.log('Mint transaction created');
     }
-    console.log('Mint transaction created');
 
     setDisplayText('Creating proof...');
     console.log('Creating proof...');
@@ -162,6 +163,7 @@ export default function Home() {
     setDisplayText('Requesting send transaction...');
     const transactionJSON = await state.zkappWorkerClient!.getTransactionJSON();
 
+    console.log('Transaction json: ', transactionJSON)
     setDisplayText('Getting transaction JSON...');
     console.log('Getting transaction JSON...');
     const { hash } = await (window as any).mina.sendTransaction({
