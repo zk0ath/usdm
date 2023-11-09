@@ -1,288 +1,197 @@
-import { useEffect, useState } from 'react';
-import './reactCOIServiceWorker';
-import ZkappWorkerClient from './zkappWorkerClient';
+import React, { useEffect, useState, useCallback } from 'react';
 import { PublicKey } from 'o1js';
-import GradientBG from '../components/GradientBG.js';
+import GradientBG from '../components/GradientBG';
+import BurnForm from '../components/BurnForm';
+import MintForm from '../components/MintForm';
+import LoadingSpinner from '../components/LoadingSpinner';
+import TransferForm from '../components/TransferForm';
 import styles from '../styles/Home.module.css';
-import { FaSpinner } from 'react-icons/fa';
+import ZkappWorkerClient from './zkappWorkerClient';
+import './reactCOIServiceWorker';
+import AccountStatus from '../components/AccountStatus';
+import WalletStatus from '../components/WalletStatus';
+import Footer from '@/components/Footer';
 
-let transactionFee = 0.1;
+interface HomeState {
+    zkappWorkerClient: ZkappWorkerClient | null;
+    hasWallet: boolean | false;
+    hasBeenSetup: boolean;
+    accountExists: boolean;
+    publicKey: PublicKey | null;
+    zkappPublicKey: PublicKey | null;
+    creatingTransaction: boolean;
+}
 
-export default function Home() {
-  const [state, setState] = useState({
-    zkappWorkerClient: null as null | ZkappWorkerClient,
-    hasWallet: null as null | boolean,
+const transactionFee = 0.1;
+
+const initialState: HomeState = {
+    zkappWorkerClient: null,
+    hasWallet: false,
     hasBeenSetup: false,
     accountExists: false,
-    // currentNum: null as null | Field,
-    publicKey: null as null | PublicKey,
-    zkappPublicKey: null as null | PublicKey,
+    publicKey: null,
+    zkappPublicKey: null,
     creatingTransaction: false
-  });
+};
 
-  const [displayText, setDisplayText] = useState('');
-  const [transactionlink, setTransactionLink] = useState('');
+export default function Home() {
+    const [state, setState] = useState<HomeState>(initialState);
+    const [displayText, setDisplayText] = useState<string>('');
+    const [transactionLink, setTransactionLink] = useState<string>('');
 
-  const [mintAmount, setMintAmount] = useState(0);
+    const [mintAmount, setMintAmount] = useState<number>(0);
+    const [burnAmount, setBurnAmount] = useState<number>(0);
+    const [transferAmount, setTransferAmount] = useState<number>(0);
+    const [recipientAddress, setRecipientAddress] = useState<string>('');
+    const [transferRecipientAddress, setTransferRecipientAddress] = useState<string>('');
 
-  const loadingSpinner = (
-    <div className="flex justify-center items-center">
-      <FaSpinner className="animate-spin h-5 w-5 mr-3" />
-      Processing...
-    </div>
-  );
+    useEffect(() => {
+        let init = async () => {
+            initializeState();
+        }
+        init().catch(e => console.error(e));
+    }, []);
 
-  useEffect(() => {
-    async function timeout(seconds: number): Promise<void> {
-      return new Promise<void>((resolve) => {
-        setTimeout(() => {
-          resolve();
-        }, seconds * 1000);
-      });
-    }
+    const initializeState = async () => {
+        if (state.hasBeenSetup) return;
 
-    (async () => {
-      if (!state.hasBeenSetup) {
         setDisplayText('Loading web worker...');
-        console.log('Loading web worker...');
         const zkappWorkerClient = new ZkappWorkerClient();
-        await timeout(5);
+        await new Promise(resolve => setTimeout(resolve, 5000));
 
         setDisplayText('Done loading web worker');
-        console.log('Done loading web worker');
 
         await zkappWorkerClient.setActiveInstanceToBerkeley();
 
         const mina = (window as any).mina;
 
-        if (mina == null) {
-          setState({ ...state, hasWallet: false });
-          return;
+        if (!mina) {
+            console.log('No mina wallet detected');
+            setState(s => ({ ...s, hasWallet: false }));
+            return;
         }
 
         const publicKeyBase58: string = (await mina.requestAccounts())[0];
         const publicKey = PublicKey.fromBase58(publicKeyBase58);
 
-        console.log(`Using key:${publicKey.toBase58()}`);
         setDisplayText(`Using key:${publicKey.toBase58()}`);
-
-        setDisplayText('Checking if fee payer account exists...');
-        console.log('Checking if fee payer account exists...');
 
         const res = await zkappWorkerClient.fetchAccount(publicKey);
         const accountExists = res.error == null;
 
         await zkappWorkerClient.loadContract();
-
-        console.log('Compiling zkApp...');
         setDisplayText('Compiling zkApp...');
         await zkappWorkerClient.compileContract();
-        console.log('zkApp compiled');
         setDisplayText('zkApp compiled...');
 
         const zkappPublicKey = PublicKey.fromBase58(
-          'B62qrMfhKm3NTrm4BBjdph3Yrf4DL628KiCzn8bCUNr6HfggWeFAkmm'
+            'B62qrMfhKm3NTrm4BBjdph3Yrf4DL628KiCzn8bCUNr6HfggWeFAkmm'
         );
 
         await zkappWorkerClient.initZkappInstance(zkappPublicKey);
-
-        console.log('Getting zkApp state...');
         setDisplayText('Getting zkApp state...');
         await zkappWorkerClient.fetchAccount(publicKey);
 
         setDisplayText('');
 
+        console.log('HasWallet set true');
         setState({
-          ...state,
-          zkappWorkerClient,
-          hasWallet: true,
-          hasBeenSetup: true,
-          publicKey,
-          zkappPublicKey,
-          accountExists
+            zkappWorkerClient,
+            hasWallet: true,
+            hasBeenSetup: true,
+            publicKey,
+            zkappPublicKey,
+            accountExists,
+            creatingTransaction: false
         });
-      }
-    })();
-  }, []);
+    };
 
-  // -------------------------------------------------------
-  // Wait for account to exist, if it didn't
+    const onTransactionAction = useCallback(async (action: 'mint' | 'burn' | 'transfer') => {
+        if (!state.zkappWorkerClient || !state.publicKey) return;
 
-  useEffect(() => {
-    (async () => {
-      let mainContent;
-      if (state.hasBeenSetup && state.accountExists) {
-        mainContent = (
-          <div style={{ justifyContent: 'center', alignItems: 'center' }}>
-            {/* ... */}
-            {state.creatingTransaction && loadingSpinner}
-            <input
-              type="number"
-              value={mintAmount}
-              onChange={(e) => setMintAmount(parseInt(e.target.value))}
-              placeholder="Enter amount to mint"
-              className={styles.input}
-            />
-            <button
-              className={styles.card}
-              onClick={onSendTransaction}
-              disabled={state.creatingTransaction}
-            >
-              Mint
-            </button>
-            {/* ... */}
-          </div>
-        );
-      }
-    })();
-  }, [state.hasBeenSetup]);
+        const actionMap = {
+            mint: async () => state.zkappWorkerClient?.createMintTransaction(state.publicKey!.toBase58(), mintAmount),
+            burn: async () => state.zkappWorkerClient?.createBurnTransaction(state.publicKey!.toBase58(), burnAmount),
+            transfer: async () => state.zkappWorkerClient?.createTransferTransaction(state.publicKey!.toBase58(), transferRecipientAddress, transferAmount)
+        };
 
-  // -------------------------------------------------------
-  // Send a transaction
+        
 
-  const onSendTransaction = async () => {
-    setState({ ...state, creatingTransaction: true });
-    setDisplayText('Creating a transaction...');
-    console.log('Creating a transaction...');
-
-    if (state.zkappWorkerClient) {
-      await state.zkappWorkerClient.fetchAccount(state.publicKey!);
-
-      console.log(`Minting ${mintAmount} tokenss...`);
-      console.log('Public Key, ', state.publicKey?.toBase58())
+        setState(s => ({ ...s, creatingTransaction: true }));
+        setDisplayText(`Creating ${action} transaction...`);
+        await actionMap[action]();
+        setDisplayText(`${action.replace(/^\w/, (c) => c.toUpperCase())} transaction created. Proving and sending...`);
+        await state.zkappWorkerClient.proveUpdateTransaction();
+        const transactionJSON = await state.zkappWorkerClient!.getTransactionJSON();
+        const { hash } = await (window as any).mina.sendTransaction({
+            transaction: transactionJSON,
+            feePayer: {
+              fee: transactionFee,
+              memo: ''
+            }
+          });
+          const transactionLink = `https://berkeley.minaexplorer.com/transaction/${hash}`;
+          console.log(`View transaction at ${transactionLink}`);
       
-      await state.zkappWorkerClient.createMintTransaction(state.publicKey?.toBase58()!, mintAmount);
-      console.log('Mint transaction created');
-    }
+          setTransactionLink(transactionLink);
+          setDisplayText(transactionLink);
 
-    setDisplayText('Creating proof...');
-    console.log('Creating proof...');
-    await state.zkappWorkerClient!.proveUpdateTransaction();
+        
+        setState(s => ({ ...s, creatingTransaction: false }));
+    }, [state, mintAmount, burnAmount, transferAmount, transferRecipientAddress]);
 
-    console.log('Requesting send transaction...');
-    setDisplayText('Requesting send transaction...');
-    const transactionJSON = await state.zkappWorkerClient!.getTransactionJSON();
+    const onBurnTokens = useCallback(() => {
+        onTransactionAction('burn');
+    }, [onTransactionAction]);
 
-    console.log('Transaction json: ', transactionJSON)
-    setDisplayText('Getting transaction JSON...');
-    console.log('Getting transaction JSON...');
-    const { hash } = await (window as any).mina.sendTransaction({
-      transaction: transactionJSON,
-      feePayer: {
-        fee: transactionFee,
-        memo: ''
-      }
-    });
-    const transactionLink = `https://berkeley.minaexplorer.com/transaction/${hash}`;
-    console.log(`View transaction at ${transactionLink}`);
+    const onMintTokens = useCallback(() => {
+        onTransactionAction('mint');
+    }, [onTransactionAction]);
 
-    setTransactionLink(transactionLink);
-    setDisplayText(transactionLink);
+    const onTransferTokens = useCallback(() => {
+        onTransactionAction('transfer');
+    }, [onTransactionAction]);
 
-    setState({ ...state, creatingTransaction: false });
-  };
+    const isWalletLinked = state.hasWallet === true;
+    const isAccountSetup = state.accountExists && state.hasBeenSetup;
 
-  // -------------------------------------------------------
-  // Refresh the current state
-
-  const onRefreshCurrentNum = async () => {
-    console.log('Getting zkApp state...');
-      setDisplayText('Getting zkApp state...');
-
-      await state.zkappWorkerClient!.fetchAccount(state.zkappPublicKey!);
-
-      // If you have additional logic to update the state with the fetched data, you can uncomment and adjust the following lines
-      // const currentNum = await state.zkappWorkerClient!.getNum();
-      // setState({ ...state, currentNum });
-      // console.log(`Current state in zkApp: ${currentNum.toString()}`);
-
-      setDisplayText(''); // Clear display text or update it with relevant information
-  };
-
-  // -------------------------------------------------------
-  // Create UI elements
-
-  let hasWallet;
-  if (state.hasWallet != null && !state.hasWallet) {
-    const auroLink = 'https://www.aurowallet.com/';
-    const auroLinkElem = (
-      <a href={auroLink} target="_blank" rel="noreferrer">
-        Install Auro wallet here
-      </a>
+    return (
+        <GradientBG>
+            <div className={styles.main}>
+            <LoadingSpinner transactionUrl={transactionLink} text={displayText} active={state.creatingTransaction || !isAccountSetup } />
+                <div className={styles.center}>
+                    {isAccountSetup && (
+                        <WalletStatus hasWallet={state.hasWallet } publicKey={state.publicKey?.toBase58() || ''} />
+                    )}
+                    {isAccountSetup && (
+                        <AccountStatus accountExists={state.accountExists} publicKey58={state.publicKey?.toBase58()!} />
+                    )}
+                    
+                    {isWalletLinked && isAccountSetup && (
+                        <>
+                            <div>
+                                <MintForm
+                                    mintAmount={mintAmount}
+                                    setMintAmount={setMintAmount}
+                                    onMintTokens={onMintTokens}
+                                />
+                                <BurnForm
+                                    burnAmount={burnAmount}
+                                    setBurnAmount={setBurnAmount}
+                                    onBurnTokens={onBurnTokens}
+                                />
+                                <TransferForm
+                                    transferAmount={transferAmount}
+                                    setTransferAmount={setTransferAmount}
+                                    transferRecipientAddress={transferRecipientAddress}
+                                    setTransferRecipientAddress={setTransferRecipientAddress}
+                                    onTransferTokens={onTransferTokens}
+                                />
+                            </div>
+                        </>
+                    )}
+                </div>
+            </div>
+        </GradientBG>
     );
-    hasWallet = <div>Could not find a wallet. {auroLinkElem}</div>;
-  }
-
-  const stepDisplay = transactionlink ? (
-    <a href={displayText} target="_blank" rel="noreferrer">
-      View transaction
-    </a>
-  ) : (
-    displayText
-  );
-
-  let setup = (
-    <div
-      className={styles.start}
-      style={{ fontWeight: 'bold', fontSize: '1.5rem', paddingBottom: '5rem' }}
-    >
-      {stepDisplay}
-      {hasWallet}
-    </div>
-  );
-
-  let accountDoesNotExist;
-  if (state.hasBeenSetup && !state.accountExists) {
-    const faucetLink =
-      'https://faucet.minaprotocol.com/?address=' + state.publicKey!.toBase58();
-    accountDoesNotExist = (
-      <div >
-        <span style={{ paddingRight: '1rem' }}>Account does not exist.</span>
-        <a href={faucetLink} target="_blank" rel="noreferrer">
-          Visit the faucet to fund this fee payer account
-        </a>
-      </div>
-    );
-  }
-
-  let mainContent;
-  if (state.hasBeenSetup && state.accountExists) {
-    mainContent = (
-      <div style={{ justifyContent: 'center', alignItems: 'center' }}>
-        {/* <div className={styles.center} style={{ padding: 0 }}>
-          Current state in zkApp: {state.currentNum!.toString()}{' '}
-        </div> */}
-        <input
-          type="number"
-          value={mintAmount}
-          onChange={(e) => setMintAmount(parseInt(e.target.value))}
-          placeholder="Enter amount to mint"
-          className={styles.input}
-        />
-        <button
-          className={styles.card}
-          onClick={onSendTransaction}
-          disabled={state.creatingTransaction}
-        >
-          Send Transaction
-        </button>
-        {/* <button className={styles.card} onClick={onRefreshCurrentNum}>
-          Get Latest State
-        </button> */}
-      </div>
-    );
-  }
-
-  return (
-    <GradientBG>
-      <div className={styles.main} style={{ padding: 0 }}>
-        {loadingSpinner} {/* This line includes the spinner based on status */}
-        <div className={styles.center} style={{ padding: 0 }}>
-          {setup}
-          {accountDoesNotExist}
-          {mainContent}
-        </div>
-      </div>
-    </GradientBG>
-  );
 }

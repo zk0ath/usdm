@@ -25,6 +25,17 @@ interface CreateMintTransactionArgs {
   amount: number;
 }
 
+interface CreateBurnTransactionArgs {
+  publicKey58: string;
+  amount: number;
+}
+
+interface CreateTransferTransactionArgs {
+  senderPublicKey58: string;
+  receiverPublicKey58: string;
+  amount: number;
+}
+
 // Define a dictionary to hold the functions for easier management and extensibility
 const functions: Record<string, Function> = {
   setActiveInstanceToBerkeley: async () => {
@@ -50,6 +61,18 @@ const functions: Record<string, Function> = {
   createMintTransaction: async ({ publicKey58, amount }: CreateMintTransactionArgs) => {
     const transaction = await Mina.transaction(() => {
       state.zkapp?.mint(PublicKey.fromBase58(publicKey58), UInt64.from(amount));
+    });
+    state.transaction = transaction;
+  },
+  createBurnTransaction: async ({ publicKey58, amount }: CreateBurnTransactionArgs) => {
+    const transaction = await Mina.transaction(() => {
+      state.zkapp?.burn(PublicKey.fromBase58(publicKey58), UInt64.from(amount));
+    });
+    state.transaction = transaction;
+  },
+  createTransferTransaction: async ({ senderPublicKey58, receiverPublicKey58, amount }: CreateTransferTransactionArgs) => {
+    const transaction = await Mina.transaction(() => {
+      state.zkapp?.transfer(PublicKey.fromBase58(senderPublicKey58),PublicKey.fromBase58(receiverPublicKey58), UInt64.from(amount));
     });
     state.transaction = transaction;
   },
