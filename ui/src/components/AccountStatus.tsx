@@ -1,4 +1,5 @@
-import React from 'react';
+import { toast } from 'react-toastify';
+import React, { useEffect } from 'react';
 
 type AccountStatusProps = {
   accountExists: boolean;
@@ -6,27 +7,29 @@ type AccountStatusProps = {
 };
 
 const AccountStatus: React.FC<AccountStatusProps> = ({ accountExists, publicKey58 }) => {
-  if (!accountExists) {
-    const faucetLink = `https://faucet.minaprotocol.com/?address=${publicKey58}`;
-    return (
-      <div className="p-4 bg-red-100 border border-red-400 text-red-700 mb-4 rounded">
-        <span className="mr-2">Account does not exist.</span>
-        <a href={faucetLink} 
-           target="_blank" 
-           rel="noopener noreferrer" 
-           className="text-blue-600 hover:text-blue-800 underline">
-          Visit the faucet to fund this fee payer account
-        </a>
-      </div>
-    );
-  }
+  useEffect(() => {
+    if (!accountExists) {
+      const faucetLink = `https://faucet.minaprotocol.com/?address=${publicKey58}`;
+      toast.error(
+        <div>
+          Account does not exist.{' '}
+          <a href={faucetLink} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
+            Visit the faucet to fund this fee payer account
+          </a>
+        </div>,
+        {
+          position: toast.POSITION.BOTTOM_RIGHT,
+        }
+      );
+    } else {
+      toast.success("Account is set up and ready to use.", {
+        position: toast.POSITION.BOTTOM_RIGHT,
+      });
+    }
+  }, [accountExists, publicKey58]);
 
-
-  return (
-    <div className="p-4 bg-green-100 border border-green-400 text-green-700 mb-4 rounded">
-      <span>Account is set up and ready to use.</span>
-    </div>
-  ) || null;
+  return null;
 };
 
 export default AccountStatus;
+
