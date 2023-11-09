@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
+import { toast } from 'react-toastify';
 import { PublicKey } from 'o1js';
 import GradientBG from '../components/GradientBG';
 import BurnForm from '../components/BurnForm';
@@ -44,13 +45,48 @@ export default function Home() {
     const [transferAmount, setTransferAmount] = useState<number>(0);
     const [recipientAddress, setRecipientAddress] = useState<string>('');
     const [transferRecipientAddress, setTransferRecipientAddress] = useState<string>('');
+    const [senderAddress, setSenderAddress] = useState<string>('');
+    const [mintRecipientAddress, setMintRecipientAddress] = useState<string>('');
+    const [burnRecipientAddress, setBurnRecipientAddress] = useState<string>('');
 
     useEffect(() => {
         let init = async () => {
-            initializeState();
-        }
+            await initializeState();
+        };
         init().catch(e => console.error(e));
-    }, []);
+
+        if(state.hasBeenSetup) {
+            if (!state.hasWallet) {
+                toast.error("Wallet Not Detected! Could not find a wallet.", {
+                    position: toast.POSITION.BOTTOM_RIGHT,
+                });
+            } else if (state.publicKey) {
+                toast.success(`Wallet Connected! Public Key: ${state.publicKey.toBase58()}`, {
+                    position: toast.POSITION.BOTTOM_RIGHT,
+                });
+            }
+
+            if (!state.accountExists && state.publicKey) {
+                const faucetLink = `https://faucet.minaprotocol.com/?address=${state.publicKey.toBase58()}`;
+                toast.error(
+                    <div>
+                        Account does not exist.{' '}
+                        <a href={faucetLink} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
+                            Visit the faucet to fund this fee payer account
+                        </a>
+                    </div>,
+                    {
+                        position: toast.POSITION.BOTTOM_RIGHT,
+                    }
+                );
+            } else if (state.accountExists) {
+                toast.success("Account is set up and ready to use.", {
+                    position: toast.POSITION.BOTTOM_RIGHT,
+                });
+            }
+        }
+        
+    }, [state.hasWallet, state.accountExists, state.publicKey]);
 
     const initializeState = async () => {
         if (state.hasBeenSetup) return;
@@ -110,9 +146,9 @@ export default function Home() {
         if (!state.zkappWorkerClient || !state.publicKey) return;
 
         const actionMap = {
-            mint: async () => state.zkappWorkerClient?.createMintTransaction(state.publicKey!.toBase58(), mintAmount),
-            burn: async () => state.zkappWorkerClient?.createBurnTransaction(state.publicKey!.toBase58(), burnAmount),
-            transfer: async () => state.zkappWorkerClient?.createTransferTransaction(state.publicKey!.toBase58(), transferRecipientAddress, transferAmount)
+            mint: async () => state.zkappWorkerClient?.createMintTransaction(mintRecipientAddress, mintAmount),
+            burn: async () => state.zkappWorkerClient?.createBurnTransaction(burnRecipientAddress, burnAmount),
+            transfer: async () => state.zkappWorkerClient?.createTransferTransaction(senderAddress, transferRecipientAddress, transferAmount)
         };
 
         
@@ -138,7 +174,7 @@ export default function Home() {
 
         
         setState(s => ({ ...s, creatingTransaction: false }));
-    }, [state, mintAmount, burnAmount, transferAmount, transferRecipientAddress]);
+    }, [state, mintAmount, burnAmount, transferAmount, transferRecipientAddress, mintRecipientAddress, burnRecipientAddress, senderAddress]);
 
     const onBurnTokens = useCallback(() => {
         onTransactionAction('burn');
@@ -157,41 +193,42 @@ export default function Home() {
 
     return (
         <GradientBG>
-            <div className={styles.main}>
-            <LoadingSpinner transactionUrl={transactionLink} text={displayText} active={state.creatingTransaction || !isAccountSetup } />
-                <div className={styles.center}>
-                    {isAccountSetup && (
-                        <WalletStatus hasWallet={state.hasWallet } publicKey={state.publicKey?.toBase58() || ''} />
-                    )}
-                    {isAccountSetup && (
-                        <AccountStatus accountExists={state.accountExists} publicKey58={state.publicKey?.toBase58()!} />
-                    )}
-                    
+            <main className="container mx-auto px-4 py-8 min-h-screen flex flex-col justify-center items-center">
+                <LoadingSpinner
+                    transactionUrl={transactionLink}
+                    text={displayText}
+                    active={state.creatingTransaction || !isAccountSetup}
+                />
+                <section className="space-y-8">
                     {isWalletLinked && isAccountSetup && (
-                        <>
-                            <div>
-                                <MintForm
-                                    mintAmount={mintAmount}
-                                    setMintAmount={setMintAmount}
-                                    onMintTokens={onMintTokens}
-                                />
-                                <BurnForm
-                                    burnAmount={burnAmount}
-                                    setBurnAmount={setBurnAmount}
-                                    onBurnTokens={onBurnTokens}
-                                />
-                                <TransferForm
-                                    transferAmount={transferAmount}
-                                    setTransferAmount={setTransferAmount}
-                                    transferRecipientAddress={transferRecipientAddress}
-                                    setTransferRecipientAddress={setTransferRecipientAddress}
-                                    onTransferTokens={onTransferTokens}
-                                />
-                            </div>
-                        </>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <MintForm
+                                mintAmount={mintAmount}
+                                setMintAmount={setMintAmount}
+                                mintRecipientAddress={mintRecipientAddress}
+                                setMintRecipientAddress={setMintRecipientAddress}
+                                onMintTokens={onMintTokens}
+                            />
+                            <BurnForm
+                                burnAmount={burnAmount}
+                                setBurnAmount={setBurnAmount}
+                                burnRecipientAddress={burnRecipientAddress}
+                                setBurnRecipientAddress={setBurnRecipientAddress}
+                                onBurnTokens={onBurnTokens}
+                            />
+                            <TransferForm
+                                transferAmount={transferAmount}
+                                setTransferAmount={setTransferAmount}
+                                transferRecipientAddress={transferRecipientAddress}
+                                setTransferRecipientAddress={setTransferRecipientAddress}
+                                senderAddress={senderAddress}
+                                setSenderAddress={setSenderAddress}
+                                onTransferTokens={onTransferTokens}
+                            />
+                        </div>
                     )}
-                </div>
-            </div>
+                </section>
+            </main>
         </GradientBG>
     );
 }
