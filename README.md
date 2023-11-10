@@ -1,5 +1,7 @@
 [![CI/CD to deploy Usdm Management Portal](https://github.com/inspector44/usdm/actions/workflows/nextjs.yml/badge.svg?branch=main)](https://github.com/inspector44/usdm/actions/workflows/nextjs.yml)
 [![CI for building contract](https://github.com/inspector44/usdm/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/inspector44/usdm/actions/workflows/main.yml)
+[![Coverage](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/inspector44/2cfa2783ab5d2eb2b178d1cf96fa0a29/raw/9aba0aeeb49b93d3fac212dde3f63e8e1e45e84f/usdm-cobertura-coverage.json)](https://github.com/inspector44/usdm/actions/workflows/main.yml)
+
 
 
 # USDM Stablecoin on Mina Protocol
