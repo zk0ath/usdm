@@ -25,7 +25,6 @@ jobs:
         env:
           CI: true
         working-directory: ./contracts
-      - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v3
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+      - name: Coverage Badge
+        uses: we-cli/coverage-badge-action@v1.0.1
+            
