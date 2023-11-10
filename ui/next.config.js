@@ -2,6 +2,7 @@
 const nextConfig = {
   reactStrictMode: false,
   pageExtensions: ['page.tsx', 'page.ts', 'page.jsx', 'page.js'],
+  output: 'standalone',
 
 
   webpack(config) {
