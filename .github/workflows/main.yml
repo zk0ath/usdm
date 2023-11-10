@@ -32,7 +32,7 @@ jobs:
           cd coverage
       - name: current directory
         run: |
-          ll
+          ls -al
       - name: create badge
         uses: gaelgirodon/ci-badges-action@v1
         with:
