@@ -32,7 +32,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - name: Change Directory
-        run: cd ui
+        run: cd ${{ github.workspace }}/ui
       - name: Detect package manager
         id: detect-package-manager
         run: |
