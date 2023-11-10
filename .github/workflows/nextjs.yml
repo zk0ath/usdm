@@ -2,7 +2,7 @@
 #
 # To get started with Next.js see: https://nextjs.org/docs/getting-started
 #
-name: Deploy Next.js site to Pages
+name: CI/CD to deploy Usdm Administration Panel
 
 on:
   # Runs on pushes targeting the default branch
@@ -87,7 +87,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v2
         with:
-          path: .next/standalone
+          path: "${{ github.workspace }}/ui/out"
 
   # Deployment job
   deploy:
