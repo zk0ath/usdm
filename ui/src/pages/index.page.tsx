@@ -4,6 +4,7 @@ import { PublicKey } from 'o1js';
 import GradientBG from '../components/GradientBG';
 import BurnForm from '../components/BurnForm';
 import MintForm from '../components/MintForm';
+import SignatureForm from '../components/SignatureForm';
 import LoadingSpinner from '../components/LoadingSpinner';
 import TransferForm from '../components/TransferForm';
 import styles from '../styles/Home.module.css';
@@ -41,12 +42,15 @@ export default function Home() {
     const [transactionLink, setTransactionLink] = useState<string>('');
 
     const [mintAmount, setMintAmount] = useState<number>(0);
+    const [signatureMintAmount, setSignatureMintAmount] = useState<number>(0);
     const [burnAmount, setBurnAmount] = useState<number>(0);
     const [transferAmount, setTransferAmount] = useState<number>(0);
     const [recipientAddress, setRecipientAddress] = useState<string>('');
     const [transferRecipientAddress, setTransferRecipientAddress] = useState<string>('');
     const [senderAddress, setSenderAddress] = useState<string>('');
     const [mintRecipientAddress, setMintRecipientAddress] = useState<string>('');
+    const [signatureZkAppPrivKey, setsignatureZkAppPrivKey] = useState<string>('');
+    const [signatureRecipientAddress, setSignatureRecipientAddress] = useState<string>('');
     const [burnRecipientAddress, setBurnRecipientAddress] = useState<string>('');
 
     useEffect(() => {
@@ -142,13 +146,14 @@ export default function Home() {
         });
     };
 
-    const onTransactionAction = useCallback(async (action: 'mint' | 'burn' | 'transfer') => {
+    const onTransactionAction = useCallback(async (action: 'mint' | 'burn' | 'transfer' | 'createSignature') => {
         if (!state.zkappWorkerClient || !state.publicKey) return;
 
         const actionMap = {
             mint: async () => state.zkappWorkerClient?.createMintTransaction(mintRecipientAddress, mintAmount),
             burn: async () => state.zkappWorkerClient?.createBurnTransaction(burnRecipientAddress, burnAmount),
-            transfer: async () => state.zkappWorkerClient?.createTransferTransaction(senderAddress, transferRecipientAddress, transferAmount)
+            transfer: async () => state.zkappWorkerClient?.createTransferTransaction(senderAddress, transferRecipientAddress, transferAmount),
+            createSignature: async () => {return "asd"}
         };
 
         
@@ -159,6 +164,7 @@ export default function Home() {
         setDisplayText(`${action.replace(/^\w/, (c) => c.toUpperCase())} transaction created. Proving and sending...`);
         await state.zkappWorkerClient.proveUpdateTransaction();
         const transactionJSON = await state.zkappWorkerClient!.getTransactionJSON();
+        console.log(transactionJSON)
         const { hash } = await (window as any).mina.sendTransaction({
             transaction: transactionJSON,
             feePayer: {
@@ -184,6 +190,10 @@ export default function Home() {
         onTransactionAction('mint');
     }, [onTransactionAction]);
 
+    const onCreateSignature = useCallback(() => {
+        onTransactionAction('createSignature');
+    }, [onTransactionAction]);
+
     const onTransferTokens = useCallback(() => {
         onTransactionAction('transfer');
     }, [onTransactionAction]);
@@ -202,6 +212,15 @@ export default function Home() {
                 <section className="space-y-8">
                     {isWalletLinked && isAccountSetup && (
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <SignatureForm
+                                signatureMintAmount={signatureMintAmount}
+                                setSignatureMintAmount={setSignatureMintAmount}
+                                signatureZkAppPrivKey={signatureZkAppPrivKey}
+                                setsignatureZkAppPrivKey={setsignatureZkAppPrivKey}
+                                signatureRecipientAddress={signatureRecipientAddress}
+                                setSignatureReceipentAddress={setSignatureRecipientAddress}
+                                onCreateSignature={onCreateSignature}
+                            />
                             <MintForm
                                 mintAmount={mintAmount}
                                 setMintAmount={setMintAmount}

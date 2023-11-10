@@ -1,4 +1,4 @@
-import { Mina, PublicKey, UInt64, fetchAccount } from 'o1js';
+import { Mina, PublicKey, UInt64, fetchAccount, Signature, PrivateKey } from 'o1js';
 import type { TokenContract } from '../../../contracts/src/TokenContract';
 
 // Create a generic type for state properties to simplify the code
@@ -23,6 +23,12 @@ interface FetchAccountArgs {
 interface CreateMintTransactionArgs {
   publicKey58: string;
   amount: number;
+}
+
+interface CreateSignatureArgs {
+  receiver: string;
+  amount: number;
+  privKey: string;
 }
 
 interface CreateBurnTransactionArgs {
@@ -64,6 +70,12 @@ const functions: Record<string, Function> = {
     });
     state.transaction = transaction;
   },
+  createSignature: async ({ receiver, amount, privKey }: CreateSignatureArgs) => {
+    const signature = Signature.create(
+      PrivateKey.fromBase58(privKey),
+      UInt64.from(amount).toFields().concat(PublicKey.fromBase58(receiver).toFields())
+    );
+  },
   createBurnTransaction: async ({ publicKey58, amount }: CreateBurnTransactionArgs) => {
     const transaction = await Mina.transaction(() => {
       state.zkapp?.burn(PublicKey.fromBase58(publicKey58), UInt64.from(amount));
@@ -72,7 +84,7 @@ const functions: Record<string, Function> = {
   },
   createTransferTransaction: async ({ senderPublicKey58, receiverPublicKey58, amount }: CreateTransferTransactionArgs) => {
     const transaction = await Mina.transaction(() => {
-      state.zkapp?.transfer(PublicKey.fromBase58(senderPublicKey58),PublicKey.fromBase58(receiverPublicKey58), UInt64.from(amount));
+      state.zkapp?.transfer(PublicKey.fromBase58(senderPublicKey58), PublicKey.fromBase58(receiverPublicKey58), UInt64.from(amount));
     });
     state.transaction = transaction;
   },
