@@ -38,17 +38,17 @@ jobs:
           node-version: "20.9.0"
           cache: "npm"
 
-      - name: Change to UI directory
-        run: cd ui
-
       - name: Install dependencies
         run: npm ci
+        working-directory: /ui
 
       - name: Build with Next.js
         run: npm run build
+        working-directory: /ui
 
       - name: Static HTML export with Next.js
         run: npm run export
+        working-directory: /ui
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v2
