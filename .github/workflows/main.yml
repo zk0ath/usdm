@@ -25,6 +25,4 @@ jobs:
         env:
           CI: true
         working-directory: ./contracts
-      - name: Coveralls GitHub Action
-        uses: coverallsapp/github-action@v2.2.3
             
