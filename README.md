@@ -34,14 +34,6 @@ The UI project provides an interface for users to interact with the USDM stablec
 - **Wallet Integration:** Users can connect their Mina Protocol wallets to the UI to interact with the USDM stablecoin.
 - **Transaction Management:** The UI provides a seamless experience for managing transactions related to USDM, including minting, burning, and transferring.
 
-## Getting Started
-
-to-do
-
-## Contributing
-
-to-do
-
 ## License
 
 The USDM stablecoin project is open-source software licensed under the Apache 2.0.
