@@ -7,7 +7,7 @@
 
 # testing
 /coverage
-
+.DS_Store
 # next.js
 /.next/
 /out/
