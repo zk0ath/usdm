@@ -4,6 +4,10 @@
 # Run tests for all pushed commits and opened pull requests on Github.
 #
 
+defaults:
+  run:
+    working-directory: ./contracts/coverage
+
 name: CI for building contracts
 on: [push, pull_request]
 jobs:
@@ -26,9 +30,6 @@ jobs:
         env:
           CI: true
         working-directory: ./contracts
-
-      - name: Prepare for Badge Creation
-        run: cp -r ./contracts/coverage .
 
       - name: current directory
         run: |
