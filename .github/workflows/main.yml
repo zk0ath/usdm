@@ -22,7 +22,14 @@ jobs:
           npm install
           npm run build --if-present
           npm test
+          npm coverage
         env:
           CI: true
         working-directory: ./contracts
+      - name: create badge
+        uses: gaelgirodon/ci-badges-action@v1
+        with:
+          gist-id: 2cfa2783ab5d2eb2b178d1cf96fa0a29
+          token: ${{ secrets.GIST_TOKEN }}
+      
             
