@@ -4,7 +4,7 @@
 # Run tests for all pushed commits and opened pull requests on Github.
 #
 
-name: CI
+name: CI for building contracts
 on: [push, pull_request]
 jobs:
   test:
