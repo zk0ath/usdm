@@ -26,13 +26,10 @@ jobs:
         env:
           CI: true
         working-directory: ./contracts
-      - name: Set coverage to working directory
-        working-directory: ./contracts
-        run: |
-          cd coverage
-      - name: current directory
-        run: |
-          ls -al
+
+      - name: Prepare for Badge Creation
+        run: cp -r ./contracts/coverage .
+
       - name: create badge
         uses: gaelgirodon/ci-badges-action@v1
         with:
