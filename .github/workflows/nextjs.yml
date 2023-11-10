@@ -4,10 +4,6 @@
 #
 name: Deploy Next.js site to Pages
 
-defaults:
-  run:
-    working-directory: ./ui
-
 on:
   # Runs on pushes targeting the default branch
   push:
