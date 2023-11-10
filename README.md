@@ -1,3 +1,7 @@
+[![CI/CD to deploy Usdm Management Portal](https://github.com/inspector44/usdm/actions/workflows/nextjs.yml/badge.svg?branch=main)](https://github.com/inspector44/usdm/actions/workflows/nextjs.yml)
+
+
+
 # USDM Stablecoin on Mina Protocol
 
 This repository hosts the USDM stablecoin zkApp project, which comprises two main components: the user interface (UI) and the contracts project.
