@@ -30,6 +30,9 @@ jobs:
         working-directory: ./contracts
         run: |
           cd coverage
+      - name: current directory
+        run: |
+          ll
       - name: create badge
         uses: gaelgirodon/ci-badges-action@v1
         with:
