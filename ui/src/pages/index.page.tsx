@@ -212,7 +212,7 @@ export default function Home() {
                 <section className="space-y-8">
                     {isWalletLinked && isAccountSetup && (
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <SignatureForm
+                            {/* <SignatureForm
                                 signatureMintAmount={signatureMintAmount}
                                 setSignatureMintAmount={setSignatureMintAmount}
                                 signatureZkAppPrivKey={signatureZkAppPrivKey}
@@ -220,7 +220,7 @@ export default function Home() {
                                 signatureRecipientAddress={signatureRecipientAddress}
                                 setSignatureReceipentAddress={setSignatureRecipientAddress}
                                 onCreateSignature={onCreateSignature}
-                            />
+                            ></SignatureForm> */}
                             <MintForm
                                 mintAmount={mintAmount}
                                 setMintAmount={setMintAmount}
