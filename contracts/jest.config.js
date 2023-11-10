@@ -21,4 +21,19 @@ export default {
   moduleNameMapper: {
     '^(\\.{1,2}/.+)\\.js$': '$1',
   },
+  // Define reporters directly
+  reporters: [
+    'default', // Default Jest reporter
+    [
+      'jest-junit',
+      {
+        outputDirectory: '.', // Output directory for the JUnit report
+        outputName: 'junit.xml', // Output filename
+      },
+    ],
+  ],
+  // Add Cobertura coverage reporter
+  coverageReporters: ['json', 'text', 'cobertura'],
+  collectCoverage: true,
+  coverageDirectory: '.', // Output directory for coverage reports
 };
