@@ -25,8 +25,6 @@ jobs:
         env:
           CI: true
         working-directory: ./contracts
-      - name: Generate coverage badge
-        uses: tj-actions/coverage-badge-js@v1.3
-        with:
-          path: ./contracts
+      - name: Coveralls GitHub Action
+        uses: coverallsapp/github-action@v2.2.3
             
