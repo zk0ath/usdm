@@ -25,6 +25,8 @@ jobs:
         env:
           CI: true
         working-directory: ./contracts
-      - name: Coverage Badge
-        uses: we-cli/coverage-badge-action@v1.0.1
+      - name: Generate coverage badge
+        uses: tj-actions/coverage-badge-js@v1.3
+        with:
+          path: ./contracts
             
