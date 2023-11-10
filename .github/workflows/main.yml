@@ -6,7 +6,7 @@
 
 defaults:
   run:
-    working-directory: ./contracts/coverage
+    working-directory: ./contracts
 
 name: CI for building contracts
 on: [push, pull_request]
