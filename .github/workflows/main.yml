@@ -30,6 +30,10 @@ jobs:
       - name: Prepare for Badge Creation
         run: cp -r ./contracts/coverage .
 
+      - name: current directory
+        run: |
+          ls -al
+
       - name: create badge
         uses: gaelgirodon/ci-badges-action@v1
         with:
