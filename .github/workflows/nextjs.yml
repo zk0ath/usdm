@@ -72,6 +72,8 @@ jobs:
           # If source files changed but packages didn't, rebuild from a prior cache.
           restore-keys: |
             ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json', '**/yarn.lock') }}-
+      - name: Install contracts dependencies
+        working-directory: "${{ github.workspace }}/contracts"
       - name: Install dependencies
         working-directory: "${{ github.workspace }}/ui"
         run: ${{ steps.detect-package-manager.outputs.manager }} ${{ steps.detect-package-manager.outputs.command }}
