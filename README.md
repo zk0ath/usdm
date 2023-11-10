@@ -1,5 +1,5 @@
 [![CI/CD to deploy Usdm Management Portal](https://github.com/inspector44/usdm/actions/workflows/nextjs.yml/badge.svg?branch=main)](https://github.com/inspector44/usdm/actions/workflows/nextjs.yml)
-
+[![CI for building contract](https://github.com/inspector44/usdm/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/inspector44/usdm/actions/workflows/main.yml)
 
 
 # USDM Stablecoin on Mina Protocol
