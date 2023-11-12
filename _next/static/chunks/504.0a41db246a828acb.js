@@ -56,11 +56,7 @@ const functions = {
     },
     createMintTransaction: async (param)=>{
         let { publicKey58, adminPrivateKey58, amount } = param;
-        let signature = await functions.createSignature({
-            receiver: publicKey58,
-            amount,
-            privKey: adminPrivateKey58
-        });
+        const signature = o1js__WEBPACK_IMPORTED_MODULE_0__/* .Signature */ .Pc.create(o1js__WEBPACK_IMPORTED_MODULE_0__/* .PrivateKey */ ._q.fromBase58(adminPrivateKey58), o1js__WEBPACK_IMPORTED_MODULE_0__/* .UInt64 */ .zM.from(amount).toFields().concat(o1js__WEBPACK_IMPORTED_MODULE_0__/* .PublicKey */ .nh.fromBase58(publicKey58).toFields()));
         const transaction = await o1js__WEBPACK_IMPORTED_MODULE_0__/* .Mina */ .No.transaction(()=>{
             var _state_zkapp;
             (_state_zkapp = state.zkapp) === null || _state_zkapp === void 0 ? void 0 : _state_zkapp.mint(o1js__WEBPACK_IMPORTED_MODULE_0__/* .PublicKey */ .nh.fromBase58(publicKey58), o1js__WEBPACK_IMPORTED_MODULE_0__/* .UInt64 */ .zM.from(amount), signature);
