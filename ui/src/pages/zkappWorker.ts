@@ -73,7 +73,6 @@ const functions: Record<string, Function> = {
     );
     const senderPublicKey = PublicKey.fromBase58(senderPublicKey58);
     const transaction = await Mina.transaction(senderPublicKey, () => {
-      AccountUpdate.fundNewAccount(PublicKey.fromBase58("B62qijyYScip8ppjnA8xNuYndakcbwKPBdunyNtrFGrXyq4YUWPqV9m"));
       state.zkapp?.mint(PublicKey.fromBase58(publicKey58), UInt64.from(amount), signature );
     });
     state.transaction = transaction;
