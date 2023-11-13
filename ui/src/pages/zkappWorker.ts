@@ -1,4 +1,4 @@
-import { Mina, PublicKey, UInt64, fetchAccount, Signature, PrivateKey } from 'o1js';
+import { Mina, PublicKey, UInt64, fetchAccount, Signature, PrivateKey, AccountUpdate } from 'o1js';
 import type { TokenContract } from '../../../contracts/src/TokenContract';
 
 // Create a generic type for state properties to simplify the code
@@ -22,6 +22,8 @@ interface FetchAccountArgs {
 
 interface CreateMintTransactionArgs {
   publicKey58: string;
+  adminPrivateKey58: string;
+  senderPublicKey58: string;
   amount: number;
 }
 
@@ -45,7 +47,7 @@ interface CreateTransferTransactionArgs {
 // Define a dictionary to hold the functions for easier management and extensibility
 const functions: Record<string, Function> = {
   setActiveInstanceToBerkeley: async () => {
-    const Berkeley = Mina.Network('https://proxy.berkeley.minaexplorer.com/graphql');
+    const Berkeley = Mina.Network('https://api.minascan.io/node/berkeley/v1/graphql');
     console.log('Berkeley Instance Created');
     Mina.setActiveInstance(Berkeley);
   },
@@ -64,9 +66,15 @@ const functions: Record<string, Function> = {
     const publicKey = PublicKey.fromBase58(publicKey58);
     if (state.TokenContract) state.zkapp = new state.TokenContract(publicKey);
   },
-  createMintTransaction: async ({ publicKey58, amount }: CreateMintTransactionArgs) => {
-    const transaction = await Mina.transaction(() => {
-      state.zkapp?.mint(PublicKey.fromBase58(publicKey58), UInt64.from(amount));
+  createMintTransaction: async ({ publicKey58, adminPrivateKey58, senderPublicKey58, amount }: CreateMintTransactionArgs) => {
+    const signature = Signature.create(
+      PrivateKey.fromBase58(adminPrivateKey58),
+      UInt64.from(amount).toFields().concat(PublicKey.fromBase58(publicKey58).toFields())
+    );
+    const senderPublicKey = PublicKey.fromBase58(senderPublicKey58);
+    const transaction = await Mina.transaction(senderPublicKey, () => {
+      AccountUpdate.fundNewAccount(PublicKey.fromBase58("B62qijyYScip8ppjnA8xNuYndakcbwKPBdunyNtrFGrXyq4YUWPqV9m"));
+      state.zkapp?.mint(PublicKey.fromBase58(publicKey58), UInt64.from(amount), signature );
     });
     state.transaction = transaction;
   },

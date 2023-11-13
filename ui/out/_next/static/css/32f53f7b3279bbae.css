@@ -744,23 +744,23 @@ video {
   font-family: 'ABC Monument Grotesk';
   font-style: normal;
   font-weight: normal;
-  src: url('/Usdm/assets/fonts/ABCMonumentGrotesk-Regular.woff2') format('woff2'),
-    url('/Usdm/assets/fonts/ABCMonumentGrotesk-Regular.woff') format('woff');
+  src: url('/assets/fonts/ABCMonumentGrotesk-Regular.woff2') format('woff2'),
+    url('/assets/fonts/ABCMonumentGrotesk-Regular.woff') format('woff');
 }
 
 @font-face {
   font-family: 'ABC Monument Grotesk Light';
   font-style: normal;
-  src: url('/Usdm/assets/fonts/ABCMonumentGrotesk-Light.woff2') format('woff2'),
-    url('/Usdm/assets/fonts/ABCMonumentGrotesk-Light.woff') format('woff');
+  src: url('/assets/fonts/ABCMonumentGrotesk-Light.woff2') format('woff2'),
+    url('/assets/fonts/ABCMonumentGrotesk-Light.woff') format('woff');
 }
 
 @font-face {
   font-family: 'ABC Monument Grotesk Bold';
   font-style: normal;
   font-weight: bold;
-  src: url('/Usdm/assets/fonts/ABCMonumentGrotesk-Bold.woff2') format('woff2'),
-    url('/Usdm/assets/fonts/ABCMonumentGrotesk-Bold.woff') format('woff');
+  src: url('/assets/fonts/ABCMonumentGrotesk-Bold.woff2') format('woff2'),
+    url('/assets/fonts/ABCMonumentGrotesk-Bold.woff') format('woff');
 }
 
 :root {

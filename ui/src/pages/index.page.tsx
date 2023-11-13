@@ -48,6 +48,7 @@ export default function Home() {
     const [recipientAddress, setRecipientAddress] = useState<string>('');
     const [transferRecipientAddress, setTransferRecipientAddress] = useState<string>('');
     const [senderAddress, setSenderAddress] = useState<string>('');
+    const [mintAdminPrivateKey, setMintAdminPrivateKey] = useState<string>('');
     const [mintRecipientAddress, setMintRecipientAddress] = useState<string>('');
     const [signatureZkAppPrivKey, setsignatureZkAppPrivKey] = useState<string>('');
     const [signatureRecipientAddress, setSignatureRecipientAddress] = useState<string>('');
@@ -125,7 +126,7 @@ export default function Home() {
         setDisplayText('zkApp compiled...');
 
         const zkappPublicKey = PublicKey.fromBase58(
-            'B62qoxbK8R2Fw9siCVYa1v3d9xYNxdCZsgtEJgFhfd1B9LqkABTfeVp'
+            'B62qrCqrTQLuseiTowTJtfZMWzApsJRv2mnvMtEzWqwXvKBgweDzPkp'
         );
 
         await zkappWorkerClient.initZkappInstance(zkappPublicKey);
@@ -149,8 +150,11 @@ export default function Home() {
     const onTransactionAction = useCallback(async (action: 'mint' | 'burn' | 'transfer' | 'createSignature') => {
         if (!state.zkappWorkerClient || !state.publicKey) return;
 
+        console.log('Private Key: ', mintAdminPrivateKey);
+        const mina = (window as any).mina;
+        const publicKeyBase58: string = (await mina.requestAccounts())[0];
         const actionMap = {
-            mint: async () => state.zkappWorkerClient?.createMintTransaction(mintRecipientAddress, mintAmount),
+            mint: async () => state.zkappWorkerClient?.createMintTransaction(mintRecipientAddress, mintAdminPrivateKey, publicKeyBase58, mintAmount),
             burn: async () => state.zkappWorkerClient?.createBurnTransaction(burnRecipientAddress, burnAmount),
             transfer: async () => state.zkappWorkerClient?.createTransferTransaction(senderAddress, transferRecipientAddress, transferAmount),
             createSignature: async () => {return "asd"}
@@ -180,7 +184,7 @@ export default function Home() {
 
         
         setState(s => ({ ...s, creatingTransaction: false }));
-    }, [state, mintAmount, burnAmount, transferAmount, transferRecipientAddress, mintRecipientAddress, burnRecipientAddress, senderAddress]);
+    }, [state, mintAmount, burnAmount, transferAmount, transferRecipientAddress, mintRecipientAddress, burnRecipientAddress, senderAddress, mintAdminPrivateKey]);
 
     const onBurnTokens = useCallback(() => {
         onTransactionAction('burn');
@@ -225,6 +229,8 @@ export default function Home() {
                                 mintAmount={mintAmount}
                                 setMintAmount={setMintAmount}
                                 mintRecipientAddress={mintRecipientAddress}
+                                mintAdminPrivateKey={mintAdminPrivateKey}
+                                setMintAdminPrivateKey={setMintAdminPrivateKey}
                                 setMintRecipientAddress={setMintRecipientAddress}
                                 onMintTokens={onMintTokens}
                             />

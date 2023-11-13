@@ -1,7 +1,7 @@
 import { TokenContract } from './TokenContract';
-import { Mina, PrivateKey, PublicKey, UInt64, AccountUpdate } from 'o1js';
+import { Mina, PrivateKey, PublicKey, UInt64, AccountUpdate, Signature, Field } from 'o1js';
 
-class TokenContractTestHelper {
+class tch {
   public static local: ReturnType<typeof Mina.LocalBlockchain>;
   public static zkApp: TokenContract;
   public static zkAppAddress: PublicKey;
@@ -10,32 +10,46 @@ class TokenContractTestHelper {
   public static feePayerPrivateKey: PrivateKey;
 
   static async initBlockchain(proofsEnabled: boolean) {
-    TokenContractTestHelper.local = Mina.LocalBlockchain({
+    tch.local = Mina.LocalBlockchain({
       proofsEnabled,
       enforceTransactionLimits: false
     });
-    Mina.setActiveInstance(TokenContractTestHelper.local);
-    const { privateKey, publicKey } = TokenContractTestHelper.local.testAccounts[0];
-    TokenContractTestHelper.feePayerPrivateKey = privateKey;
-    TokenContractTestHelper.feePayerPublicKey = publicKey;
-    TokenContractTestHelper.zkAppPrivateKey = PrivateKey.random();
-    TokenContractTestHelper.zkAppAddress = TokenContractTestHelper.zkAppPrivateKey.toPublicKey();
-    TokenContractTestHelper.zkApp = new TokenContract(TokenContractTestHelper.zkAppAddress);
+    Mina.setActiveInstance(tch.local);
+    const { privateKey, publicKey } = tch.local.testAccounts[0];
+    tch.feePayerPrivateKey = privateKey;
+    tch.feePayerPublicKey = publicKey;
+    tch.zkAppPrivateKey = PrivateKey.random();
+    tch.zkAppAddress = tch.zkAppPrivateKey.toPublicKey();
+    tch.zkApp = new TokenContract(tch.zkAppAddress);
   }
 
   static async localDeploy(feePayerKey: PrivateKey) {
-    await TokenContractTestHelper.executeTransaction(() => {
+    await tch.executeTransaction(() => {
       AccountUpdate.fundNewAccount(feePayerKey.toPublicKey());
-      TokenContractTestHelper.zkApp.deploy();
-    }, [feePayerKey, TokenContractTestHelper.zkAppPrivateKey]);
+      tch.zkApp.deploy();
+    }, [feePayerKey, tch.zkAppPrivateKey]);
   }
 
   static async executeTransaction(
     action: (deployerAccount: PublicKey) => void,
     signers: PrivateKey[]
   ) {
-    const txn = await Mina.transaction(TokenContractTestHelper.feePayerPublicKey, () => {
-      action(TokenContractTestHelper.feePayerPublicKey);
+    const txn = await Mina.transaction(tch.feePayerPublicKey, () => {
+      action(tch.feePayerPublicKey);
+    });
+    await txn.prove();
+    await txn.sign(signers).send();
+  }
+
+  static async executeTransactionWithSignature(
+    action: (deployerAccount: PublicKey, adminSignature: Signature) => void,
+    signers: PrivateKey[],
+    adminKey: PrivateKey,
+    extraFields: Field[]
+  ) {
+    const adminSignature = Signature.create(adminKey, extraFields);
+    const txn = await Mina.transaction(tch.feePayerPublicKey, () => {
+      action(tch.feePayerPublicKey, adminSignature);
     });
     await txn.prove();
     await txn.sign(signers).send();
@@ -50,73 +64,90 @@ describe('TokenContract', () => {
   });
 
   beforeEach(async () => {
-    await TokenContractTestHelper.initBlockchain(proofsEnabled);
+    await tch.initBlockchain(proofsEnabled);
   });
 
   it('should deploy the TokenContract with initial totalAmountInCirculation', async () => {
-    await TokenContractTestHelper.localDeploy(TokenContractTestHelper.feePayerPrivateKey);
-    const totalAmountInCirculation = TokenContractTestHelper.zkApp.totalAmountInCirculation.get();
+    await tch.localDeploy(tch.feePayerPrivateKey);
+    const totalAmountInCirculation = tch.zkApp.totalAmountInCirculation.get();
     expect(totalAmountInCirculation).toEqual(UInt64.from(0n));
   });
 
   it('should mint tokens and update totalAmountInCirculation correctly', async () => {
-    await TokenContractTestHelper.localDeploy(TokenContractTestHelper.feePayerPrivateKey);
+    await tch.localDeploy(tch.feePayerPrivateKey);
     const amountToMint = UInt64.from(100n);
+    const mintToAddress = tch.local.testAccounts[2].publicKey;
+    const mintSignature = Signature.create(tch.zkAppPrivateKey, [
+      ...amountToMint.toFields(),
+      ...mintToAddress.toFields(),
+      ...tch.zkApp.mintNonce.get().toFields(),
+    ]);
+    expect(tch.zkApp.totalAmountInCirculation.get()).toEqual(UInt64.from(0));
+
+    await tch.executeTransaction(() => {
+      AccountUpdate.fundNewAccount(tch.feePayerPublicKey);
+      tch.zkApp.mint(mintToAddress, amountToMint, mintSignature);
+    }, [tch.feePayerPrivateKey, tch.zkAppPrivateKey]);
   
-    await TokenContractTestHelper.executeTransaction(() => {
-      AccountUpdate.fundNewAccount(TokenContractTestHelper.feePayerPublicKey);
-      TokenContractTestHelper.zkApp.mint(TokenContractTestHelper.local.testAccounts[2].publicKey, amountToMint);
-    }, [TokenContractTestHelper.feePayerPrivateKey, TokenContractTestHelper.zkAppPrivateKey]);
-  
-    const totalAmountAfterMint = TokenContractTestHelper.zkApp.totalAmountInCirculation.get();
+    const totalAmountAfterMint = tch.zkApp.totalAmountInCirculation.get();
     expect(totalAmountAfterMint).toEqual(amountToMint);
   
-    const receiverBalance = Mina.getBalance(TokenContractTestHelper.local.testAccounts[2].publicKey, TokenContractTestHelper.zkApp.token.id).value.toBigInt();
+    const receiverBalance = Mina.getBalance(tch.local.testAccounts[2].publicKey, tch.zkApp.token.id).value.toBigInt();
     expect(receiverBalance).toEqual(amountToMint.toBigInt());
   });
   
   it('should burn tokens and update totalAmountInCirculation correctly', async () => {
-    await TokenContractTestHelper.localDeploy(TokenContractTestHelper.feePayerPrivateKey);
+    await tch.localDeploy(tch.feePayerPrivateKey);
     const amountToMint = UInt64.from(100n);
     const amountToBurn = UInt64.from(50n);
-  
+    const mintToAddress = tch.local.testAccounts[1].publicKey;
+    const mintSignature = Signature.create(tch.zkAppPrivateKey, [
+      ...amountToMint.toFields(),
+      ...mintToAddress.toFields(),
+      ...tch.zkApp.mintNonce.get().toFields(),
+    ]);
     // Mint some tokens before burning them
-    await TokenContractTestHelper.executeTransaction(() => {
-      AccountUpdate.fundNewAccount(TokenContractTestHelper.feePayerPublicKey);
-      TokenContractTestHelper.zkApp.mint(TokenContractTestHelper.local.testAccounts[1].publicKey, amountToMint);
-    }, [TokenContractTestHelper.feePayerPrivateKey, TokenContractTestHelper.zkAppPrivateKey]);
+    await tch.executeTransaction(() => {
+      AccountUpdate.fundNewAccount(tch.feePayerPublicKey);
+      tch.zkApp.mint(mintToAddress, amountToMint, mintSignature);
+    }, [tch.feePayerPrivateKey, tch.zkAppPrivateKey]);
   
     // Burn the tokens
-    await TokenContractTestHelper.executeTransaction(() => {
-      TokenContractTestHelper.zkApp.burn(TokenContractTestHelper.local.testAccounts[1].publicKey, amountToBurn);
-    }, [TokenContractTestHelper.feePayerPrivateKey, TokenContractTestHelper.local.testAccounts[1].privateKey, TokenContractTestHelper.zkAppPrivateKey]);
+    await tch.executeTransaction(() => {
+      tch.zkApp.burn(tch.local.testAccounts[1].publicKey, amountToBurn);
+    }, [tch.feePayerPrivateKey, tch.local.testAccounts[1].privateKey, tch.zkAppPrivateKey]);
   
-    const totalAmountAfterBurn = TokenContractTestHelper.zkApp.totalAmountInCirculation.get();
+    const totalAmountAfterBurn = tch.zkApp.totalAmountInCirculation.get();
     expect(totalAmountAfterBurn).toEqual(UInt64.from(50n));
   
-    const senderBalance = Mina.getBalance(TokenContractTestHelper.local.testAccounts[1].publicKey, TokenContractTestHelper.zkApp.token.id).value.toBigInt();
+    const senderBalance = Mina.getBalance(tch.local.testAccounts[1].publicKey, tch.zkApp.token.id).value.toBigInt();
     expect(senderBalance).toEqual(50n);
   });
   
   it('should transfer tokens and update balances correctly', async () => {
-    await TokenContractTestHelper.localDeploy(TokenContractTestHelper.feePayerPrivateKey);
+    await tch.localDeploy(tch.feePayerPrivateKey);
     const amountToTransfer = UInt64.from(30n);
     const senderInitialBalance = UInt64.from(100n);
-  
+    const mintToAddress = tch.local.testAccounts[1].publicKey;
+    const mintSignature = Signature.create(tch.zkAppPrivateKey, [
+      ...senderInitialBalance.toFields(),
+      ...mintToAddress.toFields(),
+      ...tch.zkApp.mintNonce.get().toFields(),
+    ]);
     // Mint tokens to sender before transferring them
-    await TokenContractTestHelper.executeTransaction(() => {
-      AccountUpdate.fundNewAccount(TokenContractTestHelper.feePayerPublicKey);
-      TokenContractTestHelper.zkApp.mint(TokenContractTestHelper.local.testAccounts[1].publicKey, senderInitialBalance);
-    }, [TokenContractTestHelper.feePayerPrivateKey, TokenContractTestHelper.local.testAccounts[1].privateKey, TokenContractTestHelper.zkAppPrivateKey]);
+    await tch.executeTransaction(() => {
+      AccountUpdate.fundNewAccount(tch.feePayerPublicKey);
+      tch.zkApp.mint(mintToAddress, senderInitialBalance, mintSignature);
+    }, [tch.feePayerPrivateKey, tch.local.testAccounts[1].privateKey, tch.zkAppPrivateKey]);
   
     // Transfer the tokens
-    await TokenContractTestHelper.executeTransaction(() => {
-      AccountUpdate.fundNewAccount(TokenContractTestHelper.feePayerPublicKey);
-      TokenContractTestHelper.zkApp.transfer(TokenContractTestHelper.local.testAccounts[1].publicKey, TokenContractTestHelper.local.testAccounts[2].publicKey, amountToTransfer);
-    }, [TokenContractTestHelper.feePayerPrivateKey, TokenContractTestHelper.local.testAccounts[1].privateKey, TokenContractTestHelper.local.testAccounts[2].privateKey, TokenContractTestHelper.zkAppPrivateKey]);
+    await tch.executeTransaction(() => {
+      AccountUpdate.fundNewAccount(tch.feePayerPublicKey);
+      tch.zkApp.transfer(tch.local.testAccounts[1].publicKey, tch.local.testAccounts[2].publicKey, amountToTransfer);
+    }, [tch.feePayerPrivateKey, tch.local.testAccounts[1].privateKey, tch.local.testAccounts[2].privateKey, tch.zkAppPrivateKey]);
   
-    const senderFinalBalance = TokenContractTestHelper.zkApp.getBalance(TokenContractTestHelper.local.testAccounts[1].publicKey);
-    const receiverFinalBalance = TokenContractTestHelper.zkApp.getBalance(TokenContractTestHelper.local.testAccounts[2].publicKey);
+    const senderFinalBalance = tch.zkApp.getBalance(tch.local.testAccounts[1].publicKey);
+    const receiverFinalBalance = tch.zkApp.getBalance(tch.local.testAccounts[2].publicKey);
     expect(senderFinalBalance).toEqual(senderInitialBalance.sub(amountToTransfer));
     expect(receiverFinalBalance).toEqual(amountToTransfer);
   });

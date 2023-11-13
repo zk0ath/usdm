@@ -61,8 +61,8 @@ export default class ZkappWorkerClient {
     });
   }
 
-  createMintTransaction(publicKey58: string, amount: number): Promise<void> {
-    return this._call('createMintTransaction', { publicKey58, amount });
+  createMintTransaction(publicKey58: string, adminPrivateKey58: string, senderPublicKey58: string, amount: number): Promise<void> {
+    return this._call('createMintTransaction', { publicKey58, adminPrivateKey58, senderPublicKey58, amount });
   }
   createSignature(amount: number, privKey: string): Promise<void> {
     return this._call('createSignature', { amount, privKey });

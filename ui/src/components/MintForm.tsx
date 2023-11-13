@@ -4,6 +4,8 @@ type MintFormProps = {
   mintAmount: number;
   setMintAmount: React.Dispatch<React.SetStateAction<number>>;
   mintRecipientAddress: string;
+  mintAdminPrivateKey: string;
+  setMintAdminPrivateKey: React.Dispatch<React.SetStateAction<string>>;
   setMintRecipientAddress: React.Dispatch<React.SetStateAction<string>>;
   onMintTokens: () => void;
 };
@@ -12,6 +14,8 @@ const MintForm: React.FC<MintFormProps> = ({
   mintAmount,
   setMintAmount,
   mintRecipientAddress,
+  mintAdminPrivateKey,
+  setMintAdminPrivateKey,
   setMintRecipientAddress,
   onMintTokens,
 }) => {
@@ -44,6 +48,19 @@ const MintForm: React.FC<MintFormProps> = ({
                     focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 
                     disabled:bg-gray-100 disabled:text-gray-500 disabled:border-gray-200"
           placeholder="Recipient's Address"
+        />
+      </div>
+      <div className="w-full">
+        <label htmlFor="mintAdminPrivateKey" className="sr-only">Admin's Private Key</label>
+        <input
+          id="mintAdminPrivateKey"
+          type="text"
+          value={mintAdminPrivateKey}
+          onChange={(e) => setMintAdminPrivateKey(e.target.value)}
+          className="w-full p-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 
+                    focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 
+                    disabled:bg-gray-100 disabled:text-gray-500 disabled:border-gray-200"
+          placeholder="Admin's Private Key"
         />
       </div>
       <button
