@@ -80,7 +80,6 @@ describe('TokenContract', () => {
     const mintSignature = Signature.create(tch.zkAppPrivateKey, [
       ...amountToMint.toFields(),
       ...mintToAddress.toFields(),
-      ...tch.zkApp.mintNonce.get().toFields(),
     ]);
     expect(tch.zkApp.totalAmountInCirculation.get()).toEqual(UInt64.from(0));
 
@@ -104,7 +103,6 @@ describe('TokenContract', () => {
     const mintSignature = Signature.create(tch.zkAppPrivateKey, [
       ...amountToMint.toFields(),
       ...mintToAddress.toFields(),
-      ...tch.zkApp.mintNonce.get().toFields(),
     ]);
     // Mint some tokens before burning them
     await tch.executeTransaction(() => {
@@ -132,7 +130,6 @@ describe('TokenContract', () => {
     const mintSignature = Signature.create(tch.zkAppPrivateKey, [
       ...senderInitialBalance.toFields(),
       ...mintToAddress.toFields(),
-      ...tch.zkApp.mintNonce.get().toFields(),
     ]);
     // Mint tokens to sender before transferring them
     await tch.executeTransaction(() => {
