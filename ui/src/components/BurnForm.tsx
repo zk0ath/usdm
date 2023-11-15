@@ -4,6 +4,8 @@ type BurnFormProps = {
   burnAmount: number;
   setBurnAmount: React.Dispatch<React.SetStateAction<number>>;
   burnRecipientAddress: string; // Added property for the recipient's address
+  burnAdminPrivateKey: string;
+  setBurnAdminPrivateKey: React.Dispatch<React.SetStateAction<string>>;
   setBurnRecipientAddress: React.Dispatch<React.SetStateAction<string>>; // Added setter for the recipient's address
   onBurnTokens: () => void;
 };
@@ -12,6 +14,8 @@ const BurnForm: React.FC<BurnFormProps> = ({
   burnAmount,
   setBurnAmount,
   burnRecipientAddress,
+  burnAdminPrivateKey,
+  setBurnAdminPrivateKey,
   setBurnRecipientAddress,
   onBurnTokens,
 }) => {
@@ -44,6 +48,19 @@ const BurnForm: React.FC<BurnFormProps> = ({
                     focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 
                     disabled:bg-gray-100 disabled:text-gray-500 disabled:border-gray-200"
           placeholder="Recipient's Address"
+        />
+      </div>
+      <div className="w-full">
+        <label htmlFor="burnAdminPrivateKey" className="sr-only">Admin's Private Key</label>
+        <input
+          id="burnAdminPrivateKey"
+          type="text"
+          value={burnAdminPrivateKey}
+          onChange={(e) => setBurnAdminPrivateKey(e.target.value)}
+          className="w-full p-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 
+                    focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 
+                    disabled:bg-gray-100 disabled:text-gray-500 disabled:border-gray-200"
+          placeholder="Admin's Private Key"
         />
       </div>
       <button

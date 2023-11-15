@@ -110,9 +110,15 @@ describe('TokenContract', () => {
       tch.zkApp.mint(mintToAddress, amountToMint, mintSignature);
     }, [tch.feePayerPrivateKey, tch.zkAppPrivateKey]);
   
+    let senderAddress = tch.local.testAccounts[1].publicKey;
+    const burnSignature = Signature.create(tch.zkAppPrivateKey, [
+      ...amountToBurn.toFields(),
+      ...senderAddress.toFields(),
+  ]);
+
     // Burn the tokens
     await tch.executeTransaction(() => {
-      tch.zkApp.burn(tch.local.testAccounts[1].publicKey, amountToBurn);
+      tch.zkApp.burn(senderAddress, amountToBurn, burnSignature);
     }, [tch.feePayerPrivateKey, tch.local.testAccounts[1].privateKey, tch.zkAppPrivateKey]);
   
     const totalAmountAfterBurn = tch.zkApp.totalAmountInCirculation.get();

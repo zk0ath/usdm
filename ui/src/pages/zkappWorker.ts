@@ -36,6 +36,7 @@ interface CreateSignatureArgs {
 interface CreateBurnTransactionArgs {
   publicKey58: string;
   amount: number;
+  adminPrivateKey58: string;
 }
 
 interface CreateTransferTransactionArgs {
@@ -83,9 +84,13 @@ const functions: Record<string, Function> = {
       UInt64.from(amount).toFields().concat(PublicKey.fromBase58(receiver).toFields())
     );
   },
-  createBurnTransaction: async ({ publicKey58, amount }: CreateBurnTransactionArgs) => {
+  createBurnTransaction: async ({ publicKey58, amount, adminPrivateKey58 }: CreateBurnTransactionArgs) => {
+    const signature = Signature.create(
+      PrivateKey.fromBase58(adminPrivateKey58),
+      UInt64.from(amount).toFields().concat(PublicKey.fromBase58(publicKey58).toFields())
+    );
     const transaction = await Mina.transaction(() => {
-      state.zkapp?.burn(PublicKey.fromBase58(publicKey58), UInt64.from(amount));
+      state.zkapp?.burn(PublicKey.fromBase58(publicKey58), UInt64.from(amount), signature);
     });
     state.transaction = transaction;
   },

@@ -43,7 +43,7 @@ export class TokenContract extends SmartContract {
         this.address,
         amount.toFields().concat(...receiverAddress.toFields())
       )
-      .assertTrue();
+      .assertTrue("Admin signature is invalid");
 
     this.token.mint({
       address: receiverAddress,
@@ -55,10 +55,19 @@ export class TokenContract extends SmartContract {
     this.totalAmountInCirculation.set(newTotalAmountInCirculation);
   }
 
-  @method burn(senderAddress: PublicKey, amount: UInt64) {
+  @method burn(senderAddress: PublicKey, amount: UInt64, adminSignature: Signature) {
     this.totalAmountInCirculation.assertEquals(this.totalAmountInCirculation.get());
     let totalAmountInCirculation = this.totalAmountInCirculation.get();
 
+    
+    adminSignature
+      .verify(
+        this.address,
+        amount.toFields().concat(...senderAddress.toFields())
+      )
+      .assertTrue("Admin signature is invalid");
+
+  
     this.token.burn({
       address: senderAddress,
       amount,
