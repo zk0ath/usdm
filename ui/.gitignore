@@ -4,7 +4,7 @@
 /node_modules
 /.pnp
 .pnp.js
-
+/out/404.html
 # testing
 /coverage
 .DS_Store

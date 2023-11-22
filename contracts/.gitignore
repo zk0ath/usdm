@@ -2,7 +2,10 @@
 node_modules
 build
 coverage
-
+/config.json
+/cobertura-coverage.xml
+/coverage-final.json
+/junit.xml
 # Editor
 .vscode
 
