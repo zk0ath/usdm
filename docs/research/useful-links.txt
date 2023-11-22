@@ -1,0 +1,5 @@
+https://developers.circle.com/stablecoins/docs/cctp-getting-started
+
+bridges: https://li.fi/knowledge-hub/blockchain-bridges-and-classification/
+
+native usdc mint and burn on usdc: https://developers.circle.com/stablecoins/docs/quickstart-transfer-10-usdc-on-chain
