@@ -1,4 +1,4 @@
-import { Mina, PrivateKey, UInt64 } from 'o1js';
+import { Mina, PrivateKey, UInt64, Signature, PublicKey } from 'o1js';
 import fs from 'fs/promises';
 import { TokenContract } from './TokenContract';
 
@@ -46,8 +46,12 @@ console.log('compile the contract...');
 await TokenContract.compile();
 try {
     console.log('build transaction and create proof...');
+    const signature = Signature.create(
+        zkAppKey,
+        UInt64.from(1000).toFields().concat(zkAppAddress.toFields())
+      );
     let tx = await Mina.transaction({ sender: feepayerAddress, fee }, () => {
-        zkApp.mint(feepayerAddress, UInt64.from(1000));
+        zkApp.mint(feepayerAddress, UInt64.from(1000), signature);
     });
     await tx.prove();
     console.log('send transaction...');
