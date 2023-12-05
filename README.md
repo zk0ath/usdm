@@ -33,7 +33,7 @@ The contracts project contains the smart contracts responsible for the minting, 
 ## UI Project
 
 The UI project provides an interface for users to interact with the USDM stablecoin. It is designed to be intuitive, allowing users to mint, burn, and transfer USDM with ease.
- - Connect with your favorite wallet and get your usdm! [USDM Management Portal](https://inspector44.github.io/usdm/)
+ - Connect with your favorite wallet and get your usdm! [USDM Management Portal](https://zk0ath.github.io/usdm/)
 
 ### Key Features:
 
