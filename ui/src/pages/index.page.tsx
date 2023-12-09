@@ -14,7 +14,6 @@ import AccountStatus from "../components/AccountStatus";
 import WalletStatus from "../components/WalletStatus";
 import Footer from "@/components/Footer";
 import { useAppSelector } from "@/store/hooks";
-import InformationDialog from "@/components/InformationDialog";
 
 interface HomeState {
   zkappWorkerClient: ZkappWorkerClient | null;
@@ -163,77 +162,91 @@ export default function Home() {
     });
   };
 
-  const onTransactionAction = useCallback(
-    async (action: "mint" | "burn" | "transfer" | "createSignature") => {
-      if (!state.zkappWorkerClient || !state.publicKey) return;
+  const onTransactionAction = async (
+    action: "mint" | "burn" | "transfer" | "createSignature"
+  ) => {
+    const zkappWorkerClient = new ZkappWorkerClient();
+    if (!zkappWorkerClient || !state.publicKey) return;
 
-      const mina = (window as any).mina;
-      const publicKeyBase58: string = (await mina.requestAccounts())[0];
-      const actionMap = {
-        mint: async () =>
-          state.zkappWorkerClient?.createMintTransaction(
-            mintRecipientAddress,
-            mintAdminPrivateKey,
-            publicKeyBase58,
-            mintAmount
-          ),
-        burn: async () =>
-          state.zkappWorkerClient?.createBurnTransaction(
-            burnRecipientAddress,
-            burnAmount,
-            burnAdminPrivateKey
-          ),
-        transfer: async () =>
-          state.zkappWorkerClient?.createTransferTransaction(
-            senderAddress,
-            transferRecipientAddress,
-            transferAmount
-          ),
-        createSignature: async () => {
-          return "asd";
-        },
-      };
+    const mina = (window as any).mina;
+    const publicKeyBase58: string = (await mina.requestAccounts())[0];
+    const actionMap = {
+      mint: async () =>
+        zkappWorkerClient?.createMintTransaction(
+          mintRecipientAddress,
+          mintAdminPrivateKey,
+          publicKeyBase58,
+          mintAmount
+        ),
+      burn: async () =>
+        zkappWorkerClient?.createBurnTransaction(
+          burnRecipientAddress,
+          burnAmount,
+          burnAdminPrivateKey
+        ),
+      transfer: async () =>
+        zkappWorkerClient?.createTransferTransaction(
+          senderAddress,
+          transferRecipientAddress,
+          transferAmount
+        ),
+      createSignature: async () => {
+        return "asd";
+      },
+    };
 
-      setState((s) => ({ ...s, creatingTransaction: true }));
-      setDisplayText(`Creating ${action} transaction...`);
-      await actionMap[action]();
-      setDisplayText(
-        `${action.replace(/^\w/, (c) =>
-          c.toUpperCase()
-        )} transaction created. Proving and sending...`
-      );
-      await state.zkappWorkerClient.proveUpdateTransaction();
-      const transactionJSON =
-        await state.zkappWorkerClient!.getTransactionJSON();
-      console.log(transactionJSON);
-      const { hash } = await (window as any).mina.sendTransaction({
-        transaction: transactionJSON,
-        feePayer: {
-          fee: transactionFee,
-          memo: "",
-        },
+    if (
+      action === "mint" &&
+      (!mintRecipientAddress || !mintAdminPrivateKey || !mintAmount)
+    ) {
+      return toast.error("Fill all fields for the mint", {
+        position: toast.POSITION.BOTTOM_RIGHT,
       });
-      const transactionLink = `https://berkeley.minaexplorer.com/transaction/${hash}`;
-      console.log(`View transaction at ${transactionLink}`);
+    }
+    if (
+      action === "burn" &&
+      (!burnRecipientAddress || !burnAmount || !burnAdminPrivateKey)
+    ) {
+      return toast.error("Fill all fields for the burn", {
+        position: toast.POSITION.BOTTOM_RIGHT,
+      });
+    }
+    if (
+      action === "transfer" &&
+      (!senderAddress || !transferRecipientAddress || !transferAmount)
+    ) {
+      return toast.error("Fill all fields for the transfer", {
+        position: toast.POSITION.BOTTOM_RIGHT,
+      });
+    }
 
-      setTransactionLink(transactionLink);
-      setDisplayText(transactionLink);
+    setState((s) => ({ ...s, creatingTransaction: true }));
+    setDisplayText(`Creating ${action} transaction...`);
 
-      setState((s) => ({ ...s, creatingTransaction: false }));
-    },
-    [
-      state,
-      mintAmount,
-      burnAmount,
-      transferAmount,
-      transferRecipientAddress,
-      mintRecipientAddress,
-      burnRecipientAddress,
-      senderAddress,
-      mintAdminPrivateKey,
-      burnAdminPrivateKey,
-    ]
-  );
+    await actionMap[action]();
+
+    setDisplayText(
+      `${action.replace(/^\w/, (c) =>
+        c.toUpperCase()
+      )} transaction created. Proving and sending...`
+    );
+    await zkappWorkerClient.proveUpdateTransaction();
+    const transactionJSON = await zkappWorkerClient!.getTransactionJSON();
+    const { hash } = await (window as any).mina.sendTransaction({
+      transaction: transactionJSON,
+      feePayer: {
+        fee: transactionFee,
+        memo: "",
+      },
+    });
+    const transactionLink = `https://berkeley.minaexplorer.com/transaction/${hash}`;
+    console.log(`View transaction at ${transactionLink}`);
+
+    setTransactionLink(transactionLink);
+    setDisplayText(transactionLink);
+
+    setState((s) => ({ ...s, creatingTransaction: false }));
+  };
 
   const onBurnTokens = () => {
     onTransactionAction("burn");
@@ -265,14 +278,14 @@ export default function Home() {
           {isWalletLinked && isAccountSetup && (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {/* <SignatureForm
-                                          signatureMintAmount={signatureMintAmount}
-                                          setSignatureMintAmount={setSignatureMintAmount}
-                                          signatureZkAppPrivKey={signatureZkAppPrivKey}
-                                          setsignatureZkAppPrivKey={setsignatureZkAppPrivKey}
-                                          signatureRecipientAddress={signatureRecipientAddress}
-                                          setSignatureReceipentAddress={setSignatureRecipientAddress}
-                                          onCreateSignature={onCreateSignature}
-                                      ></SignatureForm> */}
+                                               signatureMintAmount={signatureMintAmount}
+                                               setSignatureMintAmount={setSignatureMintAmount}
+                                               signatureZkAppPrivKey={signatureZkAppPrivKey}
+                                               setsignatureZkAppPrivKey={setsignatureZkAppPrivKey}
+                                               signatureRecipientAddress={signatureRecipientAddress}
+                                               setSignatureReceipentAddress={setSignatureRecipientAddress}
+                                               onCreateSignature={onCreateSignature}
+                                           ></SignatureForm> */}
               <MintForm
                 mintAmount={mintAmount}
                 setMintAmount={setMintAmount}
@@ -304,7 +317,6 @@ export default function Home() {
           )}
         </section>
       </main>
-      <InformationDialog name="taha" />
     </GradientBG>
   );
 }
