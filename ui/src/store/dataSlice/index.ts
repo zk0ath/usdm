@@ -5,6 +5,11 @@ import {
   ActionReducerMapBuilder,
 } from "@reduxjs/toolkit";
 
+interface initialStateType {
+  isAccountExist: boolean;
+  publicKey: any;
+}
+
 export const getData = createAsyncThunk("data/getData", async () => {
   fetch("");
   return "taha";
@@ -13,13 +18,23 @@ export const getData = createAsyncThunk("data/getData", async () => {
 export const dataSlice = createSlice({
   name: "data",
   initialState: {
-    name: "taha",
-    data: [],
+    isAccountExist: false,
+    publicKey: null,
   },
-  reducers: {},
+  reducers: {
+    setIsAccountExist: (
+      state: initialStateType,
+      action: PayloadAction<boolean>
+    ) => {
+      state.isAccountExist = action.payload;
+    },
+    setPublicKey: (state: initialStateType, action: PayloadAction<any>) => {
+      state.publicKey = action.payload;
+    },
+  },
   extraReducers: (builder: ActionReducerMapBuilder<any>) => {},
 });
 
-export const {} = dataSlice.actions;
+export const { setIsAccountExist, setPublicKey } = dataSlice.actions;
 
 export default dataSlice.reducer;

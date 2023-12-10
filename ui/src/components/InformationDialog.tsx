@@ -48,13 +48,8 @@ const InformationDialog = ({ name }: any) => {
           >
             <Close sx={{ color: "#A0A0A0", fontSize: { xs: 14, sm: 22 } }} />
           </IconButton>
-          <div className="flex flex-col items-center gap-4 mt-10">taha</div>
         </DialogContent>
-        <DialogActions>
-          <div className="flex w-full  items-center justify-center py-4">
-            zeybek
-          </div>
-        </DialogActions>
+        <DialogActions></DialogActions>
       </Dialog>
     </>
   );
