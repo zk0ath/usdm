@@ -63,3 +63,14 @@ input::-webkit-inner-spin-button {
 input[type="number"] {
   -moz-appearance: textfield;
 }
+
+.main-area {
+  background-image: linear-gradient(
+    to right top,
+    #a66498,
+    #c4788b,
+    #d09589,
+    #d2b298,
+    #d4ceb6
+  );
+}

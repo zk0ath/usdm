@@ -9,18 +9,9 @@ import ToTransaction from "@/components/ToTransaction";
 
 export default function Home() {
   return (
-    <GradientBG>
-      <main className="container mx-auto px-4 py-8 min-h-screen flex flex-col justify-center items-center">
-        {/* <LoadingSpinner
-          transactionUrl={transactionLink}
-          text={displayText}
-          active={state.creatingTransaction || !isAccountSetup}
-        /> */}
-        <section className="space-y-8">
-          <FromTransaction />
-          <ToTransaction />
-        </section>
-      </main>
-    </GradientBG>
+    <main className="main-area mx-auto bg-[#fff]  h-full flex flex-col justify-center items-center">
+      <FromTransaction />
+      <ToTransaction />
+    </main>
   );
 }

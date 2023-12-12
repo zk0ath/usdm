@@ -12,7 +12,6 @@ import ZkappWorkerClient from "./zkappWorkerClient";
 import "./reactCOIServiceWorker";
 import AccountStatus from "../components/AccountStatus";
 import WalletStatus from "../components/WalletStatus";
-import Footer from "@/components/Footer";
 import { useAppSelector } from "@/store/hooks";
 
 interface HomeState {
