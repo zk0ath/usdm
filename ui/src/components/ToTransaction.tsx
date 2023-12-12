@@ -1,6 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import { FC } from "react";
-import { Typography } from "@mui/material";
+import { useAppDispatch } from "@/store/hooks";
+import { setIsAccountExist, setPublicKey } from "@/store/dataSlice";
+import Image from "next/image";
+import OutsideClickHandler from "react-outside-click-handler";
+import { ArrowDown } from "@/helpers/icons";
+import AccountMoreButtons from "./AccountMoreButtons";
 
 interface IIcons {
   fillColor?: string;
@@ -23,19 +28,65 @@ const ParticipantsIcon: FC<IIcons> = ({ fillColor }) => (
 );
 
 const ToTransaction = () => {
+  const dispatch = useAppDispatch();
+  const [auroAccount, setAuroAccount] = useState(null);
+  const [showMoreButtons, setShowMoreButtons] = useState(false);
+
+  const handleShowMoreButtons = () => {
+    setShowMoreButtons(!showMoreButtons);
+  };
+
+  const connectWallet = async () => {
+    const account: string[] | any = await (window as any).mina
+      .requestAccounts()
+      .catch((err: any) => err);
+
+    if (account) {
+      setAuroAccount(account[0]);
+    }
+  };
+  console.log("auroAccount", auroAccount);
   return (
     <div className="w-[650px] mt-4 flex flex-col">
       <div className="flex items-center justify-between">
         <span>To</span>
-        <div className="w-[186px] cursor-pointer bg-[#d7c7c7] h-[40px] flex items-center rounded-[8px] justify-center">
-          <ParticipantsIcon fillColor="gray" />
-          <span
-            style={{ color: "#222" }}
-            className="text-md font-normal font-poppins ml-[8px]"
+        <OutsideClickHandler
+          onOutsideClick={() => {
+            setShowMoreButtons(false);
+          }}
+        >
+          <div
+            onClick={auroAccount ? handleShowMoreButtons : connectWallet}
+            className="w-[186px] cursor-pointer bg-[#d7c7c7] h-[40px] relative p-2 flex items-center rounded-[8px] justify-center"
           >
-            Connect Wallet
-          </span>
-        </div>
+            {auroAccount ? (
+              <Image
+                src="/images/auro.png"
+                width={24}
+                height={24}
+                alt="Picture of the author"
+              />
+            ) : (
+              <ParticipantsIcon fillColor="gray" />
+            )}
+            <span
+              style={{ color: "#222" }}
+              className="text-md font-normal font-poppins ml-[8px] overflow-hidden "
+            >
+              {auroAccount ? auroAccount : " Connect Wallet"}
+            </span>
+            {auroAccount && (
+              <div>
+                {" "}
+                <ArrowDown width="24px" height="24px" />
+              </div>
+            )}
+
+            {showMoreButtons && auroAccount && (
+              <AccountMoreButtons handleDisconnect={() => {}} />
+            )}
+          </div>
+        </OutsideClickHandler>
       </div>
       <div className="flex w-full p-[12px] bg-[#dfd5d6] rounded-[8px] mt-4">
         <div className="w-[158px] h-[158px] flex flex-col items-center justify-center rounded-[8px] bg-[#d7c7c7]">

@@ -1,48 +1,60 @@
-import React from "react";
-import { FC } from "react";
-import { Typography } from "@mui/material";
+import React, { useState } from "react";
 import { useEthers } from "@usedapp/core";
-
-interface IIcons {
-  fillColor?: string;
-  width?: number;
-  height?: number;
-  transform?: string;
-  className?: string;
-}
-
-const ParticipantsIcon: FC<IIcons> = ({ fillColor }) => (
-  <svg
-    width="16"
-    height="16"
-    viewBox="0 0 16 16"
-    fill={fillColor}
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <path d="M2 2C2 1.44687 1.55313 1 1 1C0.446875 1 0 1.44687 0 2V12.5C0 13.8813 1.11875 15 2.5 15H15C15.5531 15 16 14.5531 16 14C16 13.4469 15.5531 13 15 13H2.5C2.225 13 2 12.775 2 12.5V2ZM14.7063 4.70625C15.0969 4.31563 15.0969 3.68125 14.7063 3.29063C14.3156 2.9 13.6812 2.9 13.2906 3.29063L10 6.58437L8.20625 4.79063C7.81563 4.4 7.18125 4.4 6.79063 4.79063L3.29063 8.29062C2.9 8.68125 2.9 9.31563 3.29063 9.70625C3.68125 10.0969 4.31563 10.0969 4.70625 9.70625L7.5 6.91563L9.29375 8.70938C9.68437 9.1 10.3188 9.1 10.7094 8.70938L14.7094 4.70937L14.7063 4.70625Z" />
-  </svg>
-);
+import Image from "next/image";
+import { ArrowDown, ParticipantsIcon } from "@/helpers/icons";
+import AccountMoreButtons from "./AccountMoreButtons";
+import OutsideClickHandler from "react-outside-click-handler";
 
 const FromTransaction = () => {
+  const [showMoreButtons, setShowMoreButtons] = useState(false);
   const { activateBrowserWallet, account, deactivate } = useEthers();
   console.log("account", account);
+
+  const handleShowMoreButtons = () => {
+    setShowMoreButtons(!showMoreButtons);
+  };
 
   return (
     <div className="w-[650px]  flex flex-col">
       <div className="flex items-center justify-between">
         <span>From</span>
-        <div
-          onClick={activateBrowserWallet}
-          className="w-[186px] cursor-pointer bg-[#d7c7c7] h-[40px] flex items-center rounded-[8px] justify-center"
+        <OutsideClickHandler
+          onOutsideClick={() => {
+            setShowMoreButtons(false);
+          }}
         >
-          <ParticipantsIcon fillColor="gray" />
-          <span
-            style={{ color: "#222" }}
-            className="text-md font-normal font-poppins ml-[8px]"
+          <div
+            onClick={account ? handleShowMoreButtons : activateBrowserWallet}
+            className="w-[186px] cursor-pointer bg-[#d7c7c7] h-[40px] relative p-2 flex items-center rounded-[8px] justify-center"
           >
-            Connect Wallet
-          </span>
-        </div>
+            {account ? (
+              <Image
+                src="/images/metamask.png"
+                width={24}
+                height={24}
+                alt="Picture of the author"
+              />
+            ) : (
+              <ParticipantsIcon fillColor="gray" />
+            )}
+            <span
+              style={{ color: "#222" }}
+              className="text-md font-normal font-poppins ml-[8px] overflow-hidden "
+            >
+              {account ? account : " Connect Wallet"}
+            </span>
+            {account && (
+              <div>
+                {" "}
+                <ArrowDown width="24px" height="24px" />
+              </div>
+            )}
+
+            {showMoreButtons && account && (
+              <AccountMoreButtons handleDisconnect={deactivate} />
+            )}
+          </div>
+        </OutsideClickHandler>
       </div>
       <div className="flex w-full p-[12px] bg-[#dfd5d6] rounded-[8px] mt-4">
         <div className="w-[158px] h-[158px] flex flex-col items-center justify-center rounded-[8px] bg-[#d7c7c7]">

@@ -18,7 +18,7 @@ const Navigation = () => {
     }
   };
   return (
-    <div className="flex items-center justify-center h-[80px] w-full">
+    <div className="fixed flex items-center justify-center h-[80px] w-full">
       <div className="flex items-center justify-between h-full w-[80%]">
         <span className="text-xl font-bold">USDM</span>
         <div
