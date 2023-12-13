@@ -90,12 +90,22 @@ const ToTransaction = () => {
       </div>
       <div className="flex w-full p-[12px] bg-[#dfd5d6] rounded-[8px] mt-4">
         <div className="w-[158px] h-[158px] flex flex-col items-center justify-center rounded-[8px] bg-[#d7c7c7]">
-          <div className="w-[56px] h-[56px] rounded-full bg-[#a9a9ae]" />
           <span
             style={{ color: "#222" }}
             className="text-md  font-poppins pt-[8px]"
           >
-            Select network
+            Network
+          </span>
+          <img
+            className="w-[56px] h-[56px] pt-[8px]"
+            src="/images/avax.png"
+            alt=""
+          />
+          <span
+            style={{ color: "#222" }}
+            className="text-md  font-poppins pt-[8px]"
+          >
+            Avax
           </span>
         </div>
         <div className="flex flex-col w-full h-[158px] ml-[12px]">
