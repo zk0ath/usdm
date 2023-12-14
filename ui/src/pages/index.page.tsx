@@ -1,7 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
-import { toast } from "react-toastify";
-import { PublicKey } from "o1js";
-import GradientBG from "../components/GradientBG";
+import React, { useEffect } from "react";
 import ZkappWorkerClient from "./zkappWorkerClient";
 import "./reactCOIServiceWorker";
 import FromTransaction from "@/components/FromTransaction";

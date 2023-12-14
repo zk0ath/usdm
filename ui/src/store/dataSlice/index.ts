@@ -8,6 +8,7 @@ import {
 interface initialStateType {
   isAccountExist: boolean;
   publicKey: any;
+  isInformationDialog: boolean;
 }
 
 export const getData = createAsyncThunk("data/getData", async () => {
@@ -20,6 +21,7 @@ export const dataSlice = createSlice({
   initialState: {
     isAccountExist: false,
     publicKey: null,
+    isInformationDialog: false,
   },
   reducers: {
     setIsAccountExist: (
@@ -31,10 +33,17 @@ export const dataSlice = createSlice({
     setPublicKey: (state: initialStateType, action: PayloadAction<any>) => {
       state.publicKey = action.payload;
     },
+    setIsInformationDialogOpen: (
+      state: initialStateType,
+      action: PayloadAction<any>
+    ) => {
+      state.isInformationDialog = action.payload;
+    },
   },
   extraReducers: (builder: ActionReducerMapBuilder<any>) => {},
 });
 
-export const { setIsAccountExist, setPublicKey } = dataSlice.actions;
+export const { setIsAccountExist, setPublicKey, setIsInformationDialogOpen } =
+  dataSlice.actions;
 
 export default dataSlice.reducer;
