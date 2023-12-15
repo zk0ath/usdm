@@ -14,7 +14,6 @@ import InformationDialog from "./InformationDialog";
 const FromTransaction = () => {
   const [showMoreButtons, setShowMoreButtons] = useState(false);
   const { activateBrowserWallet, account, deactivate } = useEthers();
-  console.log("account", account);
 
   const handleShowMoreButtons = () => {
     setShowMoreButtons(!showMoreButtons);
