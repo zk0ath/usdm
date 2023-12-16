@@ -3,8 +3,11 @@ import ZkappWorkerClient from "./zkappWorkerClient";
 import "./reactCOIServiceWorker";
 import FromTransaction from "@/components/FromTransaction";
 import ToTransaction from "@/components/ToTransaction";
+import { getContract } from "@/store/dataSlice";
+import { useAppDispatch } from "@/store/hooks";
 
 export default function Home() {
+  const dispatch = useAppDispatch();
   const initializeState = async () => {
     const zkappWorkerClient = new ZkappWorkerClient();
     await new Promise((resolve) => setTimeout(resolve, 5000));
@@ -13,6 +16,7 @@ export default function Home() {
   };
 
   useEffect(() => {
+    dispatch(getContract());
     initializeState();
   }, []);
 

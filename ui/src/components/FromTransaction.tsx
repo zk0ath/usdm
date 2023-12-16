@@ -10,8 +10,12 @@ import {
 import AccountMoreButtons from "./AccountMoreButtons";
 import OutsideClickHandler from "react-outside-click-handler";
 import InformationDialog from "./InformationDialog";
+import { useAppSelector } from "@/store/hooks";
 
 const FromTransaction = () => {
+  const balance = useAppSelector((state) => state.dataSlice.balance);
+  console.log("balance: " + balance);
+
   const [showMoreButtons, setShowMoreButtons] = useState(false);
   const { activateBrowserWallet, account, deactivate } = useEthers();
 
