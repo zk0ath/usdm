@@ -42,7 +42,7 @@ export const getContract = createAsyncThunk(
   }
 );
 
-const initialState: initialStateType = {
+const initialState = {
   isAccountExist: false,
   publicKey: null,
   isInformationDialog: false,
