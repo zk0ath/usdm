@@ -1,4 +1,9 @@
-import { usdcMockABI } from "@/helpers/usdc-mock-abi";
+import {
+  myusdc,
+  receiveUsdcABI,
+  receiveUsdcAddress,
+  usdcMockABI,
+} from "@/helpers/usdc-mock-abi";
 import {
   createSlice,
   PayloadAction,
@@ -12,6 +17,7 @@ interface initialStateType {
   publicKey: any;
   isInformationDialog: boolean;
   balance: any;
+  allowanceBalance: any;
 }
 
 declare global {
@@ -26,15 +32,82 @@ export const getContract = createAsyncThunk(
     try {
       if (window?.ethereum) {
         const provider = new ethers.providers.Web3Provider(window.ethereum);
-        const contract = new ethers.Contract(
-          "0xa93310154d44C724A8c2E7ec52f44AEeEE617cFA",
-          usdcMockABI,
-          provider
-        );
-        console.log("address: " + address);
+        const contract = new ethers.Contract(myusdc, usdcMockABI, provider);
 
         const balance = await contract.balanceOf(address);
-        return balance;
+        const allowanceBalance = await contract.allowance(
+          address,
+          receiveUsdcAddress
+        );
+        const obj = { balance, allowanceBalance };
+        return obj;
+      }
+    } catch (error) {
+      rejectWithValue(error);
+    }
+  }
+);
+
+export const sendContract = createAsyncThunk(
+  "data/sendContract",
+  async (
+    params: { amount: number | string; account: string | undefined },
+    { rejectWithValue }
+  ) => {
+    try {
+      const { amount, account } = params;
+      if (window?.ethereum) {
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        const signer = provider.getSigner(account);
+
+        const contract = new ethers.Contract(
+          receiveUsdcAddress,
+          receiveUsdcABI,
+          signer
+        );
+
+        provider.getGasPrice();
+
+        const count = await ethers.utils.parseUnits(amount.toString(), 6);
+
+        try {
+          const data = await contract.receiveUSDC(count, {
+            gasLimit: 310000,
+            gasPrice: provider.getGasPrice(),
+            nonce: null,
+          });
+          await data.wait();
+        } catch (error) {
+          console.log(error, "hata");
+        }
+
+        // return balance;
+      }
+    } catch (error) {
+      rejectWithValue(error);
+    }
+  }
+);
+export const approve = createAsyncThunk(
+  "data/approve",
+  async (
+    params: { amount: number | string; account: string | undefined },
+    { rejectWithValue }
+  ) => {
+    try {
+      const { amount, account } = params;
+      if (window?.ethereum) {
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        const signer = provider.getSigner(account);
+        provider.getGasPrice();
+
+        const myUsdcContract = new ethers.Contract(myusdc, usdcMockABI, signer);
+        const count = await ethers.utils.parseUnits(amount.toString(), 6);
+
+        const tx = await myUsdcContract.approve(receiveUsdcAddress, count);
+        await tx.wait();
+
+        // return balance;
       }
     } catch (error) {
       rejectWithValue(error);
@@ -47,6 +120,7 @@ const initialState = {
   publicKey: null,
   isInformationDialog: false,
   balance: 0,
+  allowanceBalance: 0,
 };
 
 export const dataSlice = createSlice({
@@ -75,8 +149,10 @@ export const dataSlice = createSlice({
   },
   extraReducers: (builder: ActionReducerMapBuilder<any>) => {
     builder
-      .addCase(getContract.fulfilled, (state, action) => {
-        state.balance = action.payload;
+      .addCase(getContract.fulfilled, (state, action: any) => {
+        const { balance, allowanceBalance } = action.payload;
+        state.balance = balance;
+        state.allowanceBalance = allowanceBalance;
       })
       .addCase(getContract.rejected, (state) => {});
   },
