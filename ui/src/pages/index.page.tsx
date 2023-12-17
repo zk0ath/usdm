@@ -3,7 +3,6 @@ import ZkappWorkerClient from "./zkappWorkerClient";
 import "./reactCOIServiceWorker";
 import FromTransaction from "@/components/FromTransaction";
 import ToTransaction from "@/components/ToTransaction";
-import { getContract } from "@/store/dataSlice";
 import { useAppDispatch } from "@/store/hooks";
 
 export default function Home() {
@@ -16,7 +15,6 @@ export default function Home() {
   };
 
   useEffect(() => {
-    dispatch(getContract());
     initializeState();
   }, []);
 

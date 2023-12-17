@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useEthers } from "@usedapp/core";
 import Image from "next/image";
 import {
@@ -10,11 +10,12 @@ import {
 import AccountMoreButtons from "./AccountMoreButtons";
 import OutsideClickHandler from "react-outside-click-handler";
 import InformationDialog from "./InformationDialog";
-import { useAppSelector } from "@/store/hooks";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { getContract, setResetBalance } from "@/store/dataSlice";
 
 const FromTransaction = () => {
+  const dispatch = useAppDispatch();
   const balance = useAppSelector((state) => state.dataSlice.balance);
-  console.log("balance: " + balance);
 
   const [showMoreButtons, setShowMoreButtons] = useState(false);
   const { activateBrowserWallet, account, deactivate } = useEthers();
@@ -22,6 +23,14 @@ const FromTransaction = () => {
   const handleShowMoreButtons = () => {
     setShowMoreButtons(!showMoreButtons);
   };
+
+  useEffect(() => {
+    if (account) {
+      dispatch(getContract(account));
+    } else {
+      dispatch(setResetBalance());
+    }
+  }, [account]);
 
   return (
     <>
@@ -135,7 +144,7 @@ const FromTransaction = () => {
                   style={{ color: "#222" }}
                   className="text-md font-poppins font-light mt-2"
                 >
-                  8
+                  {balance / Math.pow(10, 18)}
                 </span>
               </div>
             </div>

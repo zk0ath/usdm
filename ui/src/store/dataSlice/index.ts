@@ -22,7 +22,7 @@ declare global {
 
 export const getContract = createAsyncThunk(
   "data/getContract",
-  async (_, { rejectWithValue }) => {
+  async (address: string, { rejectWithValue }) => {
     try {
       if (window?.ethereum) {
         const provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -31,9 +31,9 @@ export const getContract = createAsyncThunk(
           usdcMockABI,
           provider
         );
-        const balance = await contract.balanceOf(
-          "0x4dBE39332d4E04D9D7b6c4bD3b4F4012148F5BCd"
-        );
+        console.log("address: " + address);
+
+        const balance = await contract.balanceOf(address);
         return balance;
       }
     } catch (error) {
@@ -42,14 +42,16 @@ export const getContract = createAsyncThunk(
   }
 );
 
+const initialState: initialStateType = {
+  isAccountExist: false,
+  publicKey: null,
+  isInformationDialog: false,
+  balance: 0,
+};
+
 export const dataSlice = createSlice({
   name: "data",
-  initialState: {
-    isAccountExist: false,
-    publicKey: null,
-    isInformationDialog: false,
-    balance: 0,
-  },
+  initialState,
   reducers: {
     setIsAccountExist: (
       state: initialStateType,
@@ -59,6 +61,9 @@ export const dataSlice = createSlice({
     },
     setPublicKey: (state: initialStateType, action: PayloadAction<any>) => {
       state.publicKey = action.payload;
+    },
+    setResetBalance: (state: initialStateType) => {
+      state.balance = 0;
     },
 
     setIsInformationDialogOpen: (
@@ -77,7 +82,11 @@ export const dataSlice = createSlice({
   },
 });
 
-export const { setIsAccountExist, setPublicKey, setIsInformationDialogOpen } =
-  dataSlice.actions;
+export const {
+  setIsAccountExist,
+  setPublicKey,
+  setIsInformationDialogOpen,
+  setResetBalance,
+} = dataSlice.actions;
 
 export default dataSlice.reducer;
