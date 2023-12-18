@@ -99,8 +99,6 @@ export const approve = createAsyncThunk(
       if (window?.ethereum) {
         const provider = new ethers.providers.Web3Provider(window.ethereum);
         const signer = provider.getSigner(account);
-        provider.getGasPrice();
-
         const myUsdcContract = new ethers.Contract(myusdc, usdcMockABI, signer);
         const count = await ethers.utils.parseUnits(amount.toString(), 6);
 

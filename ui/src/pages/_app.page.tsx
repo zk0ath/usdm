@@ -14,7 +14,7 @@ import {
   DAppProvider,
 } from "@usedapp/core";
 import { WalletConnectConnector } from "@usedapp/wallet-connect-connector";
-import "./reactCOIServiceWorker";
+import "../helpers/reactCOIServiceWorker";
 
 const config: Config = {
   readOnlyChainId: Mainnet.chainId,

@@ -8,10 +8,8 @@ import SignatureForm from "../components/SignatureForm";
 import LoadingSpinner from "../components/LoadingSpinner";
 import TransferForm from "../components/TransferForm";
 import styles from "../styles/Home.module.css";
-import ZkappWorkerClient from "./zkappWorkerClient";
-import "./reactCOIServiceWorker";
-import AccountStatus from "../components/AccountStatus";
-import WalletStatus from "../components/WalletStatus";
+import ZkappWorkerClient from "../helpers/zkappWorkerClient";
+import "../helpers/reactCOIServiceWorker";
 import { useAppSelector } from "@/store/hooks";
 
 interface HomeState {

@@ -1,7 +1,7 @@
 import MintForm from "@/components/MintForm";
 import React, { useState } from "react";
 import { toast } from "react-toastify";
-import ZkappWorkerClient from "../zkappWorkerClient";
+import ZkappWorkerClient from "../../helpers/zkappWorkerClient";
 
 const Detail = () => {
   const [mintAmount, setMintAmount] = useState<number>(0);

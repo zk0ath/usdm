@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
-import ZkappWorkerClient from "./zkappWorkerClient";
-import "./reactCOIServiceWorker";
+import ZkappWorkerClient from "../helpers/zkappWorkerClient";
+import "../helpers/reactCOIServiceWorker";
 import FromTransaction from "@/components/FromTransaction";
 import ToTransaction from "@/components/ToTransaction";
 import { useAppDispatch } from "@/store/hooks";
