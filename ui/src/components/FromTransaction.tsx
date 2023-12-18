@@ -11,17 +11,45 @@ import AccountMoreButtons from "./AccountMoreButtons";
 import OutsideClickHandler from "react-outside-click-handler";
 import InformationDialog from "./InformationDialog";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { getContract, setResetBalance } from "@/store/dataSlice";
+import {
+  approve,
+  getContract,
+  sendContract,
+  setResetBalance,
+} from "@/store/dataSlice";
+import { debounce } from "lodash";
 
 const FromTransaction = () => {
   const dispatch = useAppDispatch();
   const balance = useAppSelector((state) => state.dataSlice.balance);
+  const allowanceBalance = useAppSelector(
+    (state) => state.dataSlice.allowanceBalance
+  );
 
   const [showMoreButtons, setShowMoreButtons] = useState(false);
+  const [amount, setAmount] = useState(0);
+  const [showApprove, setShowApprove] = useState(false);
   const { activateBrowserWallet, account, deactivate } = useEthers();
 
   const handleShowMoreButtons = () => {
     setShowMoreButtons(!showMoreButtons);
+  };
+
+  const handleSendContract = () => {
+    const obj = {
+      amount,
+      account,
+    };
+
+    if (account && amount > 0) dispatch(sendContract(obj));
+  };
+  const handleAproveContract = () => {
+    const obj = {
+      amount,
+      account,
+    };
+
+    if (account && amount > 0) dispatch(approve(obj));
   };
 
   useEffect(() => {
@@ -31,6 +59,24 @@ const FromTransaction = () => {
       dispatch(setResetBalance());
     }
   }, [account]);
+
+  const updateAmountWithDebounce = debounce(() => {
+    const fixedBalance = allowanceBalance / Math.pow(10, 6);
+
+    if (amount > fixedBalance) {
+      setShowApprove(true);
+    } else {
+      setShowApprove(false);
+    }
+  }, 2000);
+
+  const handleAmount = (e: any) => {
+    setAmount(e.target.value);
+  };
+
+  useEffect(() => {
+    updateAmountWithDebounce();
+  }, [amount]);
 
   return (
     <>
@@ -129,7 +175,9 @@ const FromTransaction = () => {
                 <input
                   style={{ color: "#222" }}
                   placeholder="0.00"
+                  value={amount}
                   type="number"
+                  onChange={handleAmount}
                   className="mt-2 bg-inherit outline-none"
                 />
               </div>
@@ -144,13 +192,18 @@ const FromTransaction = () => {
                   style={{ color: "#222" }}
                   className="text-md font-poppins font-light mt-2"
                 >
-                  {balance / Math.pow(10, 18)}
+                  {balance / Math.pow(10, 6)}
                 </span>
               </div>
             </div>
           </div>
         </div>
       </div>
+      {showApprove ? (
+        <button onClick={handleAproveContract}>Approve</button>
+      ) : (
+        <button onClick={handleSendContract}>Send</button>
+      )}
       <InformationDialog />
     </>
   );

@@ -27,8 +27,10 @@
     "@usedapp/core": "^1.2.13",
     "@usedapp/wallet-connect-connector": "^1.0.2",
     "autoprefixer": "10.4.16",
+    "bignumber.js": "^9.1.2",
     "coi-serviceworker": "^0.1.7",
     "ethers": "^5.7.2",
+    "lodash": "^4.17.21",
     "next": "14.0.1",
     "o1js": "^0.14.1",
     "postcss": "8.4.31",
@@ -43,5 +45,8 @@
     "styled-components": "^6.1.1",
     "tailwindcss": "3.3.5",
     "typescript": "5.2.2"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.14.202"
   }
 }
