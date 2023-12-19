@@ -6,6 +6,7 @@ import Image from "next/image";
 import OutsideClickHandler from "react-outside-click-handler";
 import { ArrowDown, MinaLogo } from "@/helpers/icons";
 import AccountMoreButtons from "./AccountMoreButtons";
+import { toast } from "react-toastify";
 
 interface IIcons {
   fillColor?: string;
@@ -44,6 +45,19 @@ const ToTransaction = () => {
     if (account) {
       setAuroAccount(account[0]);
     }
+  };
+
+  const handleCopyToClipboard = () => {
+    navigator.clipboard
+      .writeText(auroAccount || "")
+      .then(() => {
+        toast.success(`Text successfully copied to clipboard:${auroAccount}`, {
+          position: toast.POSITION.TOP_RIGHT,
+        });
+      })
+      .catch((err) => {
+        console.error("Unable to copy text to clipboard:", err);
+      });
   };
 
   useEffect(() => {
@@ -100,7 +114,10 @@ const ToTransaction = () => {
             )}
 
             {showMoreButtons && auroAccount && (
-              <AccountMoreButtons handleDisconnect={() => {}} />
+              <AccountMoreButtons
+                handleDisconnect={() => {}}
+                handleCopyToClipboard={handleCopyToClipboard}
+              />
             )}
           </div>
         </OutsideClickHandler>

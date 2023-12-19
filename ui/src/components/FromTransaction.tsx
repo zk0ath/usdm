@@ -3,7 +3,7 @@ import { useEthers } from "@usedapp/core";
 import Image from "next/image";
 import {
   ArrowDown,
-  MinaLogo,
+  EthereumLogo,
   ParticipantsIcon,
   UsdcLogo,
 } from "@/helpers/icons";
@@ -18,6 +18,7 @@ import {
   setResetBalance,
 } from "@/store/dataSlice";
 import { debounce } from "lodash";
+import { toast } from "react-toastify";
 
 const FromTransaction = () => {
   const dispatch = useAppDispatch();
@@ -50,6 +51,19 @@ const FromTransaction = () => {
     };
 
     if (account && amount > 0) dispatch(approve(obj));
+  };
+
+  const handleCopyToClipboard = () => {
+    navigator.clipboard
+      .writeText(account || "")
+      .then(() => {
+        toast.success(`Text successfully copied to clipboard:${account}`, {
+          position: toast.POSITION.TOP_RIGHT,
+        });
+      })
+      .catch((err) => {
+        console.error("Unable to copy text to clipboard:", err);
+      });
   };
 
   useEffect(() => {
@@ -121,7 +135,10 @@ const FromTransaction = () => {
               )}
 
               {showMoreButtons && account && (
-                <AccountMoreButtons handleDisconnect={deactivate} />
+                <AccountMoreButtons
+                  handleDisconnect={deactivate}
+                  handleCopyToClipboard={handleCopyToClipboard}
+                />
               )}
             </div>
           </OutsideClickHandler>
@@ -130,15 +147,11 @@ const FromTransaction = () => {
           <div className="w-[158px] h-[158px] flex flex-col items-center  rounded-[8px] bg-[#d7c7c7]">
             <span
               style={{ color: "#666" }}
-              className="text-md  font-poppins mt-[8px]"
+              className="text-md  font-poppins mt-[8px] mb-[12px]"
             >
               Network
             </span>
-            <img
-              className="w-[56px] h-[56px] mt-[12px]"
-              src="/images/ethereum.png"
-              alt=""
-            />
+            <EthereumLogo width="56" height="56" />
             <span
               style={{ color: "#222" }}
               className="text-md  font-poppins mt-[12px]"
@@ -175,7 +188,7 @@ const FromTransaction = () => {
                 <input
                   style={{ color: "#222" }}
                   placeholder="0.00"
-                  value={amount}
+                  value={amount > 0 ? amount : ""}
                   type="number"
                   onChange={handleAmount}
                   className="mt-2 bg-inherit outline-none"
@@ -200,9 +213,19 @@ const FromTransaction = () => {
         </div>
       </div>
       {showApprove ? (
-        <button onClick={handleAproveContract}>Approve</button>
+        <button
+          className="w-[120px] h-[40px] bg-[#D6C7C6] text-md font-poppins font-medium rounded-[8px] mt-4 flex items-center justify-center transaction-button"
+          onClick={handleAproveContract}
+        >
+          Approve
+        </button>
       ) : (
-        <button onClick={handleSendContract}>Send</button>
+        <button
+          className="w-[120px] h-[40px] bg-[#D6C7C6] text-md font-poppins font-medium rounded-[8px] mt-4 flex items-center justify-center transaction-button"
+          onClick={handleSendContract}
+        >
+          Send
+        </button>
       )}
       <InformationDialog />
     </>

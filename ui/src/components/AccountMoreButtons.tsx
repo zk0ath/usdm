@@ -2,13 +2,18 @@ import React from "react";
 
 interface propTypes {
   handleDisconnect: () => void;
+  handleCopyToClipboard: () => void;
 }
 
-const AccountMoreButtons = ({ handleDisconnect }: propTypes) => {
+const AccountMoreButtons = ({
+  handleDisconnect,
+  handleCopyToClipboard,
+}: propTypes) => {
   return (
     <div className="w-[176px]  h-auto flex flex-col cursor-pointer p-2 bg-[#D3BBA2] absolute top-[44px] rounded-[8px] z-10 right-0">
       <span
         style={{ color: "#555" }}
+        onClick={handleCopyToClipboard}
         className="text-md font-normal hover:bg-[#D4CAB1] p-2 rounded-[8px] font-poppins"
       >
         Coppy adress
