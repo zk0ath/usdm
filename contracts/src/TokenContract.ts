@@ -15,6 +15,7 @@ import {
 export class TokenContract extends SmartContract {
   @state(UInt64) totalAmountInCirculation = State<UInt64>();
   @state(UInt32) mintNonce = State<UInt32>();
+  @state(PublicKey) owner = State<PublicKey>();
 
   init() {
     super.init();
@@ -30,9 +31,15 @@ export class TokenContract extends SmartContract {
     this.account.tokenSymbol.set("USDM3");
     this.totalAmountInCirculation.set(UInt64.zero);
     this.mintNonce.set(UInt32.zero);
+    this.owner.set(this.address);
+  }
+
+  onlyOwner() {
+    this.address.assertEquals(this.owner.get());
   }
 
   @method mint(receiverAddress: PublicKey, amount: UInt64, adminSignature: Signature) {
+    this.onlyOwner();
     this.totalAmountInCirculation.assertEquals(this.totalAmountInCirculation.get());
     let totalAmountInCirculation = this.totalAmountInCirculation.get();
     this.mintNonce.assertEquals(this.mintNonce.get());
@@ -56,6 +63,7 @@ export class TokenContract extends SmartContract {
   }
 
   @method burn(senderAddress: PublicKey, amount: UInt64, adminSignature: Signature) {
+    this.onlyOwner();
     this.totalAmountInCirculation.assertEquals(this.totalAmountInCirculation.get());
     let totalAmountInCirculation = this.totalAmountInCirculation.get();
 
@@ -82,6 +90,7 @@ export class TokenContract extends SmartContract {
     receiverAddress: PublicKey,
     amount: UInt64
   ) {
+    this.onlyOwner();
     const senderBalance = this.getBalance(senderAddress);
     
     senderBalance.assertGreaterThanOrEqual(amount, "Sender does not have enough balance");
