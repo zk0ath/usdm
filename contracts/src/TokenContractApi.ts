@@ -21,6 +21,7 @@ type Config = {
         }
     >;
 };
+// todo: ask this to caner
 
 // Validate and retrieve deployment alias from command line arguments
 function getDeploymentAlias(): string {
