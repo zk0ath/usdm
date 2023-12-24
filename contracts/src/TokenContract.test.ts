@@ -2,12 +2,12 @@ import { TokenContract } from './TokenContract';
 import { Mina, PrivateKey, PublicKey, UInt64, AccountUpdate, Signature, Field } from 'o1js';
 
 class BlockchainHandler {
-  private static localBlockchain: ReturnType<typeof Mina.LocalBlockchain>;
-  private static tokenContract: TokenContract;
-  private static contractAddress: PublicKey;
-  private static contractPrivateKey: PrivateKey;
-  private static feePayerPublicKey: PublicKey;
-  private static feePayerPrivateKey: PrivateKey;
+  public static localBlockchain: ReturnType<typeof Mina.LocalBlockchain>;
+  public static tokenContract: TokenContract;
+  public static contractAddress: PublicKey;
+  public static contractPrivateKey: PrivateKey;
+  public static feePayerPublicKey: PublicKey;
+  public static feePayerPrivateKey: PrivateKey;
 
   static async initialize(proofsEnabled: boolean) {
     this.localBlockchain = Mina.LocalBlockchain({
