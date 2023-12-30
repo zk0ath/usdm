@@ -14,6 +14,15 @@ module.exports = {
       },
       fontFamily: {
         poppins: ["Poppins", "sans-serif"],
+        lexend: ["Lexend", "sans-serif"],
+        inter: ["Inter", "sans-serif"],
+        // inter: [
+        //   '"Inter var", sans-serif',
+        //   {
+        //     fontFeatureSettings: '"cv11", "ss01"',
+        //     fontVariationSettings: '"opsz" 32',
+        //   },
+        // ],
       },
     },
   },

@@ -65,12 +65,13 @@ input[type="number"] {
 }
 
 .main-area {
-  background-image: linear-gradient(
+  /* background-image: linear-gradient(
     to right top,
     #a66498,
     #c4788b,
     #d09589,
     #d2b298,
     #d4ceb6
-  );
+  ); */
+  background: #f4f5f6;
 }
