@@ -4,6 +4,12 @@ import "../helpers/reactCOIServiceWorker";
 import FromTransaction from "@/components/FromTransaction";
 import ToTransaction from "@/components/ToTransaction";
 import { useAppDispatch } from "@/store/hooks";
+import From from "@/components/From";
+import To from "@/components/To";
+import { ChangeChain } from "@/helpers/icons";
+import SwapProcess from "@/components/SwapProcess";
+import Container from "@/components/Container";
+import Footer from "@/components/Footer";
 
 export default function Home() {
   const dispatch = useAppDispatch();
@@ -19,9 +25,31 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="main-area mx-auto bg-[#fff]  h-full flex flex-col justify-center items-center">
-      <FromTransaction />
-      <ToTransaction />
+    <main className="main-area mx-auto bg-[#fff] flex flex-col items-center justify-center">
+      <h1
+        style={{ color: "#090A0B" }}
+        className="font-semibold font-lexend text-4xl mb-[30px] mt-[96px]"
+      >
+        Swap- Cross Chain
+      </h1>
+      <div className="flex items-center relative">
+        <From />
+        <div className="w-[48px] left-[596px] top-[50%] h-[48px] absolute flex items-center justify-center gap-[8px] rounded-[16px] bg-[#F4F5F6]">
+          <ChangeChain width="48" height="48" />
+        </div>
+        <To />
+      </div>
+      <SwapProcess />
+      <Container>
+        <button
+          style={{ color: "#fff" }}
+          className="w-full h-[56px] mt-[24px] rounded-[16px] text-sm font-lexend font-normal bg-[#8BB7A2] flex items-center justify-center"
+        >
+          Confirm
+        </button>
+      </Container>
+
+      <Footer />
     </main>
   );
 }
