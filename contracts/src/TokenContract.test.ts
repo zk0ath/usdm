@@ -87,12 +87,13 @@ describe('TokenContract', () => {
 
   it('should deploy the TokenContract with initial totalAmountInCirculation', async () => {
     await blockchainHandler.deployContract(blockchainHandler.userPrivKey);
+    await blockchainHandler.initAsync();
   });
 
   it('should mint tokens and update totalAmountInCirculation correctly', async () => {
-    await blockchainHandler.initAsync();
     const amountToMint = UInt64.from(100n);
-    const mintToAddress = blockchainHandler.localBlockchain.testAccounts[2].publicKey;
+    const mintToAddress =
+      blockchainHandler.localBlockchain.testAccounts[2].publicKey;
 
     await blockchainHandler.executeTransaction(() => {
       AccountUpdate.fundNewAccount(blockchainHandler.userPublicKey);
@@ -111,11 +112,12 @@ describe('TokenContract', () => {
   });
 
   it('should burn tokens and update totalAmountInCirculation correctly', async () => {
-    await blockchainHandler.initAsync();
     const amountToMint = UInt64.from(100000n);
     const amountToBurn = UInt64.from(50000n);
-    const mintToAddress = blockchainHandler.localBlockchain.testAccounts[0].publicKey;
-    const burnToAddress = blockchainHandler.localBlockchain.testAccounts[0].publicKey;
+    const mintToAddress =
+      blockchainHandler.localBlockchain.testAccounts[0].publicKey;
+    const burnToAddress =
+      blockchainHandler.localBlockchain.testAccounts[0].publicKey;
 
     await blockchainHandler.executeTransaction(() => {
       AccountUpdate.fundNewAccount(blockchainHandler.userPublicKey);
@@ -123,38 +125,11 @@ describe('TokenContract', () => {
     }, [blockchainHandler.userPrivKey, blockchainHandler.contractPrivateKey]);
 
     await blockchainHandler.executeTransaction(() => {
-      // AccountUpdate.fundNewAccount(blockchainHandler.userPublicKey);
       blockchainHandler.tokenContract.burn(burnToAddress, amountToBurn);
     }, [blockchainHandler.userPrivKey, blockchainHandler.contractPrivateKey]);
 
-    const totalAmountAfterBurn = blockchainHandler.tokenContract.totalAmountInCirculation.get();
-    expect(totalAmountAfterBurn).toEqual(UInt64.from(50n));
+    const totalAmountAfterBurn =
+      blockchainHandler.tokenContract.totalAmountInCirculation.get();
+    expect(totalAmountAfterBurn).toEqual(UInt64.from(50100n));
   });
-
-  // it('should transfer tokens and update balances correctly', async () => {
-  //   await blockchainHandler.initAsync();
-  //   const amountToTransfer = UInt64.from(30n);
-  //   const senderInitialBalance = UInt64.from(100n);
-  //   const senderAddress = blockchainHandler.localBlockchain.testAccounts[1].publicKey;
-  //   const receiverAddress = blockchainHandler.localBlockchain.testAccounts[2].publicKey;
-  //   const mintSignature = Signature.create(blockchainHandler.contractPrivateKey, [
-  //     ...senderInitialBalance.toFields(),
-  //     ...senderAddress.toFields(),
-  //   ]);
-
-  //   await blockchainHandler.executeTransaction(() => {
-  //     AccountUpdate.fundNewAccount(blockchainHandler.userPublicKey);
-  //     blockchainHandler.tokenContract.mint(senderAddress, senderInitialBalance);
-  //   }, [blockchainHandler.userPrivKey, blockchainHandler.contractPrivateKey]);
-
-  //   await blockchainHandler.executeTransaction(() => {
-  //     AccountUpdate.fundNewAccount(blockchainHandler.userPublicKey);
-  //     blockchainHandler.tokenContract.transfer(senderAddress, receiverAddress, amountToTransfer);
-  //   }, [blockchainHandler.userPrivKey, blockchainHandler.contractPrivateKey]);
-
-  //   const senderFinalBalance = Mina.getBalance(senderAddress, blockchainHandler.tokenContract.token.id).value.toBigInt();
-  //   const receiverFinalBalance = Mina.getBalance(receiverAddress, blockchainHandler.tokenContract.token.id).value.toBigInt();
-  //   expect(senderFinalBalance).toEqual(senderInitialBalance.toBigInt() - amountToTransfer.toBigInt());
-  //   expect(receiverFinalBalance).toEqual(amountToTransfer.toBigInt());
-  // });
 });
