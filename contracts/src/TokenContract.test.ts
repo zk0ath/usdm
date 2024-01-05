@@ -132,4 +132,21 @@ describe('TokenContract', () => {
       blockchainHandler.tokenContract.totalAmountInCirculation.get();
     expect(totalAmountAfterBurn).toEqual(UInt64.from(50100n));
   });
+
+  it('should transfer tokens and update balances correctly when signature is valid', async () => {
+    const amountToTransfer = UInt64.from(50n);
+    const receiver = PrivateKey.random().toPublicKey();
+    const tx = await Mina.transaction(blockchainHandler.userPublicKey, () => {
+      AccountUpdate.fundNewAccount(blockchainHandler.userPublicKey);
+      blockchainHandler.tokenContract.transfer(
+        blockchainHandler.userPublicKey,
+        receiver,
+        amountToTransfer
+      );
+    });
+    await tx.prove();
+    tx.sign([blockchainHandler.userPrivKey]);
+    await tx.send();
+    Mina.getBalance(receiver, blockchainHandler.tokenContract.token.id).assertEquals(amountToTransfer)
+  });
 });
