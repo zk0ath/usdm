@@ -19,9 +19,7 @@ export class TokenContract extends SmartContract {
   @state(UInt64) decimals = State<UInt64>()
   @state(UInt64) maxSupply = State<UInt64>()
   @state(PublicKey) owner = State<PublicKey>()
-
   @state(UInt64) totalAmountInCirculation = State<UInt64>();
-  @state(UInt32) mintNonce = State<UInt32>();
 
   deploy(args?: DeployArgs) {
     super.deploy(args);
@@ -39,55 +37,28 @@ export class TokenContract extends SmartContract {
     this.owner.set(this.sender)
   }
 
-  init() {
-    super.init();
-    const permissionToEdit = Permissions.proof();
-
-    this.account.permissions.set({
-      ...Permissions.default(),
-      editState: permissionToEdit,
-      setTokenSymbol: permissionToEdit,
-      send: permissionToEdit,
-      receive: permissionToEdit,
-    });
-    this.account.tokenSymbol.set('USDM3');
-    this.totalAmountInCirculation.set(UInt64.zero);
-    this.mintNonce.set(UInt32.zero);
-    this.owner.set(this.address);
-  }
-
   onlyOwner() {
-    this.address.assertEquals(this.owner.get());
+    this.owner.getAndRequireEquals().assertEquals(this.sender)
   }
 
   @method mint(
     receiverAddress: PublicKey,
-    amount: UInt64,
-    adminSignature: Signature
+    amount: UInt64
   ) {
     this.onlyOwner();
-    this.totalAmountInCirculation.assertEquals(
-      this.totalAmountInCirculation.get()
-    );
-    let totalAmountInCirculation = this.totalAmountInCirculation.get();
-    this.mintNonce.assertEquals(this.mintNonce.get());
-    let nonce = this.mintNonce.get();
+    const maxSupply = this.maxSupply.getAndRequireEquals()
+        const circulatingSupply = this.totalAmountInCirculation.getAndRequireEquals()
 
-    adminSignature
-      .verify(
-        this.address,
-        amount.toFields().concat(...receiverAddress.toFields())
-      )
-      .assertTrue('Admin signature is invalid');
+        const newCirculatingSupply = circulatingSupply.add(amount)
 
-    this.token.mint({
-      address: receiverAddress,
-      amount,
-    });
+        newCirculatingSupply.assertLessThanOrEqual(maxSupply)
 
-    let newTotalAmountInCirculation = totalAmountInCirculation.add(amount);
-    this.mintNonce.set(nonce.add(1));
-    this.totalAmountInCirculation.set(newTotalAmountInCirculation);
+        this.token.mint({
+            address: receiverAddress,
+            amount,
+        })
+
+        this.totalAmountInCirculation.set(newCirculatingSupply)
   }
 
   @method burn(
