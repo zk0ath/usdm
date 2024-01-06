@@ -1,0 +1,18 @@
+{
+  "name": "usdm-evm-contract",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@openzeppelin/contracts": "^5.0.1",
+    "@truffle/hdwallet-provider": "^2.1.15",
+    "dotenv": "^16.3.1",
+    "truffle-plugin-verify": "^0.6.7"
+  }
+}
