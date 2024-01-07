@@ -74,7 +74,7 @@ const functions: Record<string, Function> = {
     );
     const senderPublicKey = PublicKey.fromBase58(senderPublicKey58);
     const transaction = await Mina.transaction(senderPublicKey, () => {
-      state.zkapp?.mint(PublicKey.fromBase58(publicKey58), UInt64.from(amount), signature );
+      state.zkapp?.mint(PublicKey.fromBase58(publicKey58), UInt64.from(amount) );
     });
     state.transaction = transaction;
   },
@@ -90,7 +90,7 @@ const functions: Record<string, Function> = {
       UInt64.from(amount).toFields().concat(PublicKey.fromBase58(publicKey58).toFields())
     );
     const transaction = await Mina.transaction(() => {
-      state.zkapp?.burn(PublicKey.fromBase58(publicKey58), UInt64.from(amount), signature);
+      state.zkapp?.burn(PublicKey.fromBase58(publicKey58), UInt64.from(amount));
     });
     state.transaction = transaction;
   },
