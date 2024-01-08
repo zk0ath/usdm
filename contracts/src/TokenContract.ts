@@ -81,19 +81,7 @@ export class TokenContract extends SmartContract {
     receiverAddress: PublicKey,
     amount: UInt64
   ) {
-    this.onlyOwner();
-    const senderBalance = this.getBalance(senderAddress);
-
-    senderBalance.assertGreaterThanOrEqual(
-      amount,
-      'Sender does not have enough balance'
-    );
-
-    this.token.send({
-      from: senderAddress,
-      to: receiverAddress,
-      amount,
-    });
+    this.token.send({ from: senderAddress, to: receiverAddress, amount })
   }
 
   @method getBalance(address: PublicKey): UInt64 {
