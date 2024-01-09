@@ -59,21 +59,20 @@ export class TokenContract extends SmartContract {
     this.totalAmountInCirculation.set(newCirculatingSupply);
   }
 
-  @method burn(
-    burnerAddress: PublicKey,
-    amount: UInt64
-  ) {
-    // this.onlyOwner(); TODO: Question to caner: Should we keep this?
-    const circulatingSupply = this.totalAmountInCirculation.getAndRequireEquals()
+  @method burn(burnerAddress: PublicKey, amount: UInt64) {
+    this.onlyOwner();
+    const maxSupply = this.maxSupply.getAndRequireEquals();
+    const circulatingSupply =
+      this.totalAmountInCirculation.getAndRequireEquals();
 
-        const newCirculatingSupply = circulatingSupply.sub(amount)
+    const newCirculatingSupply = circulatingSupply.sub(amount);
+    newCirculatingSupply.assertLessThanOrEqual(maxSupply);
+    this.token.burn({
+      address: burnerAddress,
+      amount,
+    });
 
-        this.token.burn({
-            address: burnerAddress,
-            amount,
-        })
-
-        this.totalAmountInCirculation.set(newCirculatingSupply)
+    this.totalAmountInCirculation.set(newCirculatingSupply);
   }
 
   @method transfer(
@@ -81,7 +80,7 @@ export class TokenContract extends SmartContract {
     receiverAddress: PublicKey,
     amount: UInt64
   ) {
-    this.token.send({ from: senderAddress, to: receiverAddress, amount })
+    this.token.send({ from: senderAddress, to: receiverAddress, amount });
   }
 
   @method getBalance(address: PublicKey): UInt64 {

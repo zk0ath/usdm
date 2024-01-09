@@ -63,7 +63,7 @@ async function main() {
         );
 
         let tx = await Mina.transaction({ sender: feepayerKey.toPublicKey(), fee }, () => {
-            zkApp.mint(feepayerKey.toPublicKey(), UInt64.from(1000), signature);
+            zkApp.mint(feepayerKey.toPublicKey(), UInt64.from(1000));
         });
 
         await tx.prove();
