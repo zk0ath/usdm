@@ -7,7 +7,7 @@ const Navigation = () => {
   const pathname = usePathname();
 
   return (
-    <div className="fixed flex items-center bg-[#f4f5f6] justify-center h-[80px] z-20 w-full">
+    <div className="fixed flex items-center bg-[#f4f5f6] justify-center h-[80px] z-[999] w-full">
       <Container>
         <div className="flex items-center justify-between h-full">
           <span className="text-xl font-bold">USDM</span>
