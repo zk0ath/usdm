@@ -13,9 +13,9 @@ const Navigation = () => {
           <span className="text-xl font-bold">USDM</span>
           <div className="flex item-center justify-end">
             <Link
-              href="/"
+              href="/landing"
               className={`text-md font-normal font-poppins ${
-                pathname === "/"
+                pathname === "/landing"
                   ? "border-[#9f7976] border-b-2"
                   : "first-letter:"
               } overflow-hidden`}
@@ -23,6 +23,16 @@ const Navigation = () => {
               Home
             </Link>
             <Link
+              href="/"
+              className={`text-md ml-[48px] font-normal font-poppins ${
+                pathname === "/"
+                  ? "border-[#9f7976] border-b-2"
+                  : "first-letter:"
+              } overflow-hidden`}
+            >
+              Launch App
+            </Link>
+            {/* <Link
               href="/detail"
               className={`text-md ml-[48px] font-normal font-poppins ${
                 pathname === "/detail"
@@ -31,7 +41,7 @@ const Navigation = () => {
               } overflow-hidden`}
             >
               Detail
-            </Link>
+            </Link> */}
           </div>
         </div>
       </Container>
