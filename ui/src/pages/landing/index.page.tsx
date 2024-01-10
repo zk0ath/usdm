@@ -1,9 +1,8 @@
 import Container from "@/components/Container";
 import Image from "next/image";
 import React from "react";
-import { TheLogo, CurrencyLogo } from "@/helpers/icons";
-import Introduction from "@/components/landingPage/introduction";
-import NewsSlider from "@/components/landingPage/newsSlider";
+import Introduction from "@/components/landingPage/Introduction";
+import NewsSlider from "@/components/landingPage/NewsSlider";
 
 const LandingPage = () => {
   return (
