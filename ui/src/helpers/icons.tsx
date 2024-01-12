@@ -31,9 +31,9 @@ export const ArrowDown: FC<IIcons> = ({ width, height, fillColor }) => (
     <path
       d="M7 10L12 15L17 10"
       stroke={fillColor}
-      stroke-width="1.5"
-      stroke-linecap="round"
-      stroke-linejoin="round"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
     />
   </svg>
 );
@@ -46,8 +46,8 @@ export const ArrowRight: FC<IIcons> = ({ width, height, fillColor }) => (
     xmlns="http://www.w3.org/2000/svg"
   >
     <path
-      fill-rule="evenodd"
-      clip-rule="evenodd"
+      fillRule="evenodd"
+      clipRule="evenodd"
       d="M11.0202 7.64641C11.2155 7.84167 11.2155 8.15825 11.0202 8.35351L5.68688 13.6868C5.49161 13.8821 5.17503 13.8821 4.97977 13.6868C4.78451 13.4916 4.78451 13.175 4.97977 12.9797L9.95955 7.99996L4.97977 3.02018C4.78451 2.82492 4.78451 2.50833 4.97977 2.31307C5.17503 2.11781 5.49161 2.11781 5.68688 2.31307L11.0202 7.64641Z"
       fill="#4F86FF"
     />
@@ -120,58 +120,58 @@ export const ProcessIcon: FC<IIcons> = ({ width, height, fillColor }) => (
     <path
       d="M10 15.62V19"
       stroke="#090A0B"
-      stroke-width="1.5"
-      stroke-linecap="round"
-      stroke-linejoin="round"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
     />
     <path
       d="M6.01965 13.98L3.63965 16.36"
       stroke="#090A0B"
-      stroke-width="1.5"
-      stroke-linecap="round"
-      stroke-linejoin="round"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
     />
     <path
       d="M4.38 10H1"
       stroke="#090A0B"
-      stroke-width="1.5"
-      stroke-linecap="round"
-      stroke-linejoin="round"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
     />
     <path
       d="M3.63965 3.64001L6.01965 6.02001"
       stroke="#090A0B"
-      stroke-width="1.5"
-      stroke-linecap="round"
-      stroke-linejoin="round"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
     />
     <path
       d="M10 4V1"
       stroke="#090A0B"
-      stroke-width="1.5"
-      stroke-linecap="round"
-      stroke-linejoin="round"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
     />
     <path
       d="M14.7695 5.23001L16.3595 3.64001"
       stroke="#090A0B"
-      stroke-width="1.5"
-      stroke-linecap="round"
-      stroke-linejoin="round"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
     />
     <path
       d="M19 10H17.5"
       stroke="#090A0B"
-      stroke-width="1.5"
-      stroke-linecap="round"
-      stroke-linejoin="round"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
     />
     <path
       d="M16.3597 16.36L15.8297 15.83"
       stroke="#090A0B"
-      stroke-width="1.5"
-      stroke-linecap="round"
-      stroke-linejoin="round"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
     />
   </svg>
 );
@@ -187,30 +187,30 @@ export const ChangeChain: FC<IIcons> = ({ width, height, fillColor }) => (
     <path
       d="M28.502 22.793L31.399 19.897L28.502 17"
       stroke="#8BB7A2"
-      stroke-width="1.5"
-      stroke-linecap="round"
-      stroke-linejoin="round"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
     />
     <path
       d="M17.3994 19.9H31.3994"
       stroke="#8BB7A2"
-      stroke-width="1.5"
-      stroke-linecap="round"
-      stroke-linejoin="round"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
     />
     <path
       d="M20.2964 25.207L17.3994 28.103L20.2964 31"
       stroke="#8BB7A2"
-      stroke-width="1.5"
-      stroke-linecap="round"
-      stroke-linejoin="round"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
     />
     <path
       d="M31.3994 28.1H17.3994"
       stroke="#8BB7A2"
-      stroke-width="1.5"
-      stroke-linecap="round"
-      stroke-linejoin="round"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
     />
   </svg>
 );
@@ -222,7 +222,7 @@ export const DottedLine: FC<IIcons> = ({ width, height, fillColor }) => (
     viewBox="0 0 250 2"
     fill="none"
   >
-    <path d="M0 1H249.25" stroke="#788691" stroke-dasharray="3 3" />
+    <path d="M0 1H249.25" stroke="#788691" strokeDasharray="3 3" />
   </svg>
 );
 export const TelegramLogo: FC<IIcons> = ({ width, height, fillColor }) => (
@@ -236,16 +236,16 @@ export const TelegramLogo: FC<IIcons> = ({ width, height, fillColor }) => (
     <path
       d="M15.7263 22.5413L12.9729 25.2199C12.4956 25.6839 11.6969 25.4786 11.5036 24.8413L9.66895 18.8013"
       stroke="#191D24"
-      stroke-width="1.5"
-      stroke-linecap="round"
-      stroke-linejoin="round"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
     />
     <path
       d="M18.8051 14.5693C18.8051 14.5693 15.3531 17.6839 13.5824 19.2826C13.0531 19.7599 13.0971 20.5999 13.6704 21.0226L20.8411 26.3199C21.5464 26.8413 22.5544 26.4586 22.7371 25.5999L26.2584 9.00394C26.4291 8.20128 25.6411 7.53061 24.8758 7.82528L4.18911 15.8039C3.57977 16.0386 3.60911 16.9093 4.23177 17.1039L9.66778 18.7999"
       stroke="#191D24"
-      stroke-width="1.5"
-      stroke-linecap="round"
-      stroke-linejoin="round"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
     />
   </svg>
 );
@@ -304,22 +304,22 @@ export const YoutubeLogo: FC<IIcons> = ({ width, height, fillColor }) => (
     xmlns="http://www.w3.org/2000/svg"
   >
     <path
-      fill-rule="evenodd"
-      clip-rule="evenodd"
+      fillRule="evenodd"
+      clipRule="evenodd"
       d="M28.7777 8.49737C28.4723 7.1587 27.5683 6.1027 26.419 5.74003C24.3403 5.0907 16.0003 5.0907 16.0003 5.0907C16.0003 5.0907 7.66433 5.0907 5.58166 5.74003C4.43633 6.09736 3.53233 7.15337 3.22299 8.49737C2.66699 10.9267 2.66699 16 2.66699 16C2.66699 16 2.66699 21.0734 3.22299 23.5027C3.52833 24.8414 4.43233 25.8974 5.58166 26.26C7.66433 26.9094 16.0003 26.9094 16.0003 26.9094C16.0003 26.9094 24.3403 26.9094 26.419 26.26C27.5643 25.9027 28.4683 24.8467 28.7777 23.5027C29.3337 21.0734 29.3337 16 29.3337 16C29.3337 16 29.3337 10.9267 28.7777 8.49737Z"
       stroke="#191D24"
-      stroke-width="1.5"
-      stroke-linecap="round"
-      stroke-linejoin="round"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
     />
     <path
-      fill-rule="evenodd"
-      clip-rule="evenodd"
+      fillRule="evenodd"
+      clipRule="evenodd"
       d="M13.3359 20L20.2639 16L13.3359 12V20Z"
       stroke="#191D24"
-      stroke-width="1.5"
-      stroke-linecap="round"
-      stroke-linejoin="round"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
     />
   </svg>
 );
@@ -334,25 +334,25 @@ export const MediumLogo: FC<IIcons> = ({ width, height, fillColor }) => (
     <path
       d="M6.77409 20.64V9.94666"
       stroke="#191D24"
-      stroke-width="1.5"
-      stroke-linecap="round"
-      stroke-linejoin="round"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
     />
     <path
       d="M20.6164 7.72664V21.872L19.0777 24.9493V25.3333H28.3084V24.948L26.0004 21.872V8.94531L28.2924 6.82797H28.3004V5.28931H28.3084H21.3471L15.3337 25.3333H14.0777L7.70038 11.1626C7.54705 10.8226 7.33372 10.5133 7.06972 10.2493L3.69238 6.87197V5.33331H11.371L17.3244 18.6973"
       stroke="#191D24"
-      stroke-width="1.5"
-      stroke-linecap="round"
-      stroke-linejoin="round"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
     />
     <path
-      fill-rule="evenodd"
-      clip-rule="evenodd"
+      fillRule="evenodd"
+      clipRule="evenodd"
       d="M3.69238 24.9479V25.3333H9.84705V24.9479L6.76972 20.6439L3.69238 24.9479Z"
       stroke="#191D24"
-      stroke-width="1.5"
-      stroke-linecap="round"
-      stroke-linejoin="round"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
     />
   </svg>
 );
