@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useEthers } from "@usedapp/core";
 import Image from "next/image";
+import { ethers } from "ethers";
 import {
   ArrowDown,
   EthereumLogo,
@@ -75,11 +76,25 @@ const FromTransaction = () => {
   }, [account]);
 
   const updateAmountWithDebounce = debounce(() => {
-    const fixedBalance = allowanceBalance / Math.pow(10, 6);
-
-    if (amount > fixedBalance) {
-      setShowApprove(true);
-    } else {
+    try {
+      let ut = ethers.utils.parseUnits(amount.toString(), 6);
+      let dd = ut.toNumber();
+      if(dd > allowanceBalance){
+        setShowApprove(true);
+      } else {
+        setShowApprove(false);
+      }
+      // const allowanceBalanceBN = ethers.BigNumber.from(allowanceBalance);
+      // const amountBN = ethers.utils.parseUnits(amount.toString(), 6); // Assuming 6 decimal places, adjust as needed
+  
+      // if (amountBN.gt(allowanceBalanceBN)) {
+      //   setShowApprove(true);
+      // } else {
+      //   setShowApprove(false);
+      // }
+    } catch (error) {
+      console.error("Error parsing values:", error);
+      // Handle parsing error, perhaps reset the approval state
       setShowApprove(false);
     }
   }, 2000);
@@ -151,19 +166,19 @@ const FromTransaction = () => {
             >
               Network
             </span>
-            <EthereumLogo width="56" height="56" />
+            <UsdcLogo width="56" height="56" />
             <span
               style={{ color: "#222" }}
               className="text-md  font-poppins mt-[12px]"
             >
-              Ethereum
+              Usdc
             </span>
           </div>
           <div className="flex flex-col w-full h-[158px] ml-[12px]">
             <div className="w-full h-[73px] bg-[#d7c7c7] p-2 flex flex-col rounded-[8px]">
               <span
                 style={{ color: "#222" }}
-                className="text-sm font-poppins font-light"
+                className="text-sm font-light font-poppins"
               >
                 Asset
               </span>
@@ -171,7 +186,7 @@ const FromTransaction = () => {
                 <UsdcLogo width="24" height="24" />
                 <span
                   style={{ color: "#222" }}
-                  className="text-md font-poppins ml-2 font-medium"
+                  className="ml-2 font-medium text-md font-poppins"
                 >
                   USDC
                 </span>
@@ -181,7 +196,7 @@ const FromTransaction = () => {
               <div className="w-[80%] h-[73px] bg-[#d7c7c7] p-2 flex flex-col rounded-[8px] ">
                 <span
                   style={{ color: "#222" }}
-                  className="text-sm font-poppins font-light"
+                  className="text-sm font-light font-poppins"
                 >
                   Amount
                 </span>
@@ -191,21 +206,21 @@ const FromTransaction = () => {
                   value={amount > 0 ? amount : ""}
                   type="number"
                   onChange={handleAmount}
-                  className="mt-2 bg-inherit outline-none"
+                  className="mt-2 outline-none bg-inherit"
                 />
               </div>
               <div className="w-[20%] flex flex-col p-2 h-[73px] ml-2">
                 <span
                   style={{ color: "#222" }}
-                  className="text-md font-poppins font-light"
+                  className="font-light text-md font-poppins"
                 >
                   Balance
                 </span>
                 <span
                   style={{ color: "#222" }}
-                  className="text-md font-poppins font-light mt-2"
+                  className="mt-2 font-light text-md font-poppins"
                 >
-                  {balance / Math.pow(10, 6)}
+                  {ethers.utils.formatUnits(balance, 6)}
                 </span>
               </div>
             </div>

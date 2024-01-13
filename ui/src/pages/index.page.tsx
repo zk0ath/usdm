@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import ZkappWorkerClient from "../helpers/zkappWorkerClient";
 import "../helpers/reactCOIServiceWorker";
 import FromTransaction from "@/components/FromTransaction";
@@ -11,9 +11,23 @@ import SwapProcess from "@/components/SwapProcess";
 import Container from "@/components/Container";
 import Footer from "@/components/Footer";
 import { useEthers } from "@usedapp/core";
-import { sendContract } from "@/store/dataSlice";
+import { sendContract, approve } from "@/store/dataSlice";
+import { RootState } from '../store';
+import { useSelector } from 'react-redux';
+import { toast } from "react-toastify";
 
 export default function Home() {
+  const toastState = useSelector((state: RootState) => state.toast);
+  const [showApproveButton, setShowApproveButton] = useState(false);
+  useEffect(() => {
+    // Ensure toastState.type is not null and is a valid key of toast
+    if (toastState.message && toastState.type && toastState.type in toast) {
+      toast[toastState.type](toastState.message);
+    }
+  }, [toastState]);
+  const handleShowApproveChange = (showApprove : boolean) => {
+    setShowApproveButton(showApprove);
+  };
   const dispatch = useAppDispatch();
   const initializeState = async () => {
     const zkappWorkerClient = new ZkappWorkerClient();
@@ -32,6 +46,13 @@ export default function Home() {
     };
     if (account && amount > 0) dispatch(sendContract(obj));
   };
+  const handleApprove = () => {
+    const obj = {
+      amount,
+      account,
+    };
+    if (account && amount > 0) dispatch(approve(obj));
+  };
 
   useEffect(() => {
     initializeState();
@@ -45,15 +66,15 @@ export default function Home() {
       >
         Swap- Cross Chain
       </h1>
-      <div className="flex items-center relative">
-        <From />
+      <div className="relative flex items-center">
+        <From onShowApproveChange={handleShowApproveChange}/>
         <div className="w-[48px] left-[596px] top-[50%] h-[48px] absolute flex items-center justify-center gap-[8px] rounded-[16px] bg-[#F4F5F6]">
           <ChangeChain width="48" height="48" />
         </div>
         <To />
       </div>
       <SwapProcess />
-      <Container>
+      {/* <Container>
         <button
           style={{ color: "#fff" }}
           onClick={handleSendContract}
@@ -63,6 +84,23 @@ export default function Home() {
         >
           Confirm
         </button>
+      </Container> */}
+      <Container>
+        {showApproveButton ? (
+          <button style={{ color: "#fff" }} className={`w-full h-[56px] mt-[24px] rounded-[16px] text-sm font-lexend font-normal ${
+            amount > 0 ? "bg-[#619079]" : "bg-[#8BB7A2]"
+          } flex items-center justify-center`} onClick={handleApprove}>Approve</button>
+        ) : (
+          <button
+          style={{ color: "#fff" }}
+          onClick={handleSendContract}
+          className={`w-full h-[56px] mt-[24px] rounded-[16px] text-sm font-lexend font-normal ${
+            amount > 0 ? "bg-[#619079]" : "bg-[#8BB7A2]"
+          } flex items-center justify-center`}
+        >
+          Confirm
+        </button>
+        )}
       </Container>
 
       <Footer />

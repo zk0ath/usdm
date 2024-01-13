@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useEthers } from "@usedapp/core";
 import Image from "next/image";
+import { ethers } from "ethers";
 import {
   ArrowDown,
   EthereumLogo,
@@ -21,7 +22,12 @@ import {
 import { debounce } from "lodash";
 import { toast } from "react-toastify";
 
-const From = () => {
+
+type FromProps = {
+  onShowApproveChange: (showApprove: boolean) => void;
+};
+
+const From: React.FC<FromProps> = ({ onShowApproveChange }) => {
   const dispatch = useAppDispatch();
   const balance = useAppSelector((state) => state.dataSlice.balance);
   const allowanceBalance = useAppSelector(
@@ -32,11 +38,13 @@ const From = () => {
   const [showMoreButtons, setShowMoreButtons] = useState(false);
   const [showApprove, setShowApprove] = useState(false);
   const { activateBrowserWallet, account, deactivate } = useEthers();
-
+  useEffect(() => {
+    onShowApproveChange(showApprove);
+  }, [showApprove, onShowApproveChange]);
   const handleShowMoreButtons = () => {
     setShowMoreButtons(!showMoreButtons);
   };
-
+  
   const handleSendContract = () => {
     const obj = {
       amount,
@@ -76,17 +84,25 @@ const From = () => {
   }, [account]);
 
   const updateAmountWithDebounce = debounce(() => {
-    const fixedBalance = allowanceBalance / Math.pow(10, 6);
-
-    if (amount > fixedBalance) {
-      setShowApprove(true);
-    } else {
+    try {
+      let ut = ethers.utils.parseUnits(amount.toString(), 6);
+      let dd = ut.toNumber();
+      if(dd > allowanceBalance){
+        setShowApprove(true);
+      } else {
+        setShowApprove(false);
+      }
+    } catch (error) {
+      console.error("Error parsing values:", error);
+      // Handle parsing error, perhaps reset the approval state
       setShowApprove(false);
     }
   }, 2000);
 
-  const handleAmount = (e: any) => {
-    dispatch(setAmount(e.target.value));
+  const handleAmount = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const inputVal = e.target.value;
+    const numericValue = inputVal === "" ? 0 : parseFloat(inputVal);
+    dispatch(setAmount(numericValue));
   };
 
   useEffect(() => {
@@ -138,14 +154,14 @@ const From = () => {
         <div className="flex items-center">
           <span
             style={{ color: "#090A0B" }}
-            className="text-sm font-normal overflow-hidden font-inter lining-nums proportional-nums"
+            className="overflow-hidden text-sm font-normal font-inter lining-nums proportional-nums"
           >
             From
           </span>
           <div className="w-[73px] ml-4 h-[24px] border flex items-center justify-center rounded-[8px] border-[#8BB7A2] ">
             <span
               style={{ color: "#8BB7A2" }}
-              className="text-xs font-normal overflow-hidden font-inter lining-nums proportional-nums"
+              className="overflow-hidden text-xs font-normal font-inter lining-nums proportional-nums"
             >
               Ethereum
             </span>
@@ -153,12 +169,12 @@ const From = () => {
         </div>
         <div className="flex items-center justify-between">
           <div className="flex items-center">
-            <EthereumLogo width="33" height="33" />
+            <UsdcLogo width="33" height="33" />
             <span
               style={{ color: "#090A0B" }}
-              className="text-lg ml-2 mr-2 font-semibold font-lexend"
+              className="ml-2 mr-2 text-lg font-semibold font-lexend"
             >
-              ETH
+              USDC
             </span>
             <ArrowDown width="24px" height="24px" fillColor="#090A0B" />
           </div>
@@ -176,20 +192,20 @@ const From = () => {
           <div className="flex items-start">
             <span
               style={{ color: "#788691" }}
-              className="text-sm mr-2 font-inter font-normal"
+              className="mr-2 text-sm font-normal font-inter"
             >
               Available:
             </span>
             <span
               style={{ color: "#090A0B" }}
-              className="text-sm mr-2 font-inter font-normal"
+              className="mr-2 text-sm font-normal font-inter"
             >
-              {balance / Math.pow(10, 6)} ETH
+              {ethers.utils.formatUnits(balance, 6)} ETH
             </span>
           </div>
           <span
             style={{ color: "#788691" }}
-            className="text-md font-inter font-normal"
+            className="font-normal text-md font-inter"
           >
             =$6,099.37
           </span>
