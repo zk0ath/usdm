@@ -74,29 +74,20 @@ export default function Home() {
         <To />
       </div>
       <SwapProcess />
-      {/* <Container>
-        <button
-          style={{ color: "#fff" }}
-          onClick={handleSendContract}
-          className={`w-full h-[56px] mt-[24px] rounded-[16px] text-sm font-lexend font-normal ${
-            amount > 0 ? "bg-[#619079]" : "bg-[#8BB7A2]"
-          } flex items-center justify-center`}
-        >
-          Confirm
-        </button>
-      </Container> */}
       <Container>
         {showApproveButton ? (
-          <button style={{ color: "#fff" }} className={`w-full h-[56px] mt-[24px] rounded-[16px] text-sm font-lexend font-normal ${
-            amount > 0 ? "bg-[#619079]" : "bg-[#8BB7A2]"
-          } flex items-center justify-center`} onClick={handleApprove}>Approve</button>
-        ) : (
-          <button
+          <button 
+          style={{ color: "#fff" }} 
+          className={`w-full h-14 mt-6 rounded-lg text-sm font-lexend font-normal flex items-center justify-center transition-transform duration-300 ${amount > 0 ? "bg-[#619079] active:scale-95" : "bg-[#8BB7A2]"}`} 
+          onClick={amount > 0 ? handleApprove : undefined}
+        >
+          Approve
+        </button>
+      ) : (
+        <button
           style={{ color: "#fff" }}
-          onClick={handleSendContract}
-          className={`w-full h-[56px] mt-[24px] rounded-[16px] text-sm font-lexend font-normal ${
-            amount > 0 ? "bg-[#619079]" : "bg-[#8BB7A2]"
-          } flex items-center justify-center`}
+          onClick={amount > 0 ? handleSendContract : undefined}
+          className={`w-full h-14 mt-6 rounded-lg text-sm font-lexend font-normal flex items-center justify-center transition-transform duration-300 ${amount > 0 ? "bg-[#619079] active:scale-95" : "bg-[#8BB7A2]"}`}
         >
           Confirm
         </button>
