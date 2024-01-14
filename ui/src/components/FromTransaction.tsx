@@ -97,7 +97,7 @@ const FromTransaction = () => {
       // Handle parsing error, perhaps reset the approval state
       setShowApprove(false);
     }
-  }, 2000);
+  }, 1000);
 
   const handleAmount = (e: any) => {
     setAmount(e.target.value);

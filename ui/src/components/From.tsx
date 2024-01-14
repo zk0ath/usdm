@@ -97,7 +97,7 @@ const From: React.FC<FromProps> = ({ onShowApproveChange }) => {
       // Handle parsing error, perhaps reset the approval state
       setShowApprove(false);
     }
-  }, 2000);
+  }, 1000);
 
   const handleAmount = (e: React.ChangeEvent<HTMLInputElement>) => {
     const inputVal = e.target.value;
@@ -200,7 +200,7 @@ const From: React.FC<FromProps> = ({ onShowApproveChange }) => {
               style={{ color: "#090A0B" }}
               className="mr-2 text-sm font-normal font-inter"
             >
-              {ethers.utils.formatUnits(balance, 6)} ETH
+              {ethers.utils.formatUnits(balance, 6)} USDC
             </span>
           </div>
           <span

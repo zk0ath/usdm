@@ -162,7 +162,7 @@ const To = () => {
               style={{ color: "#090A0B" }}
               className="mr-2 text-sm font-normal font-inter"
             >
-              0 Mina
+              0 USDM
             </span>
           </div>
           <span
