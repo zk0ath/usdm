@@ -1,3 +1,4 @@
+import { setToast } from './../toastSlice';
 import {
   myusdc,
   receiveUsdcABI,
@@ -10,15 +11,15 @@ import {
   createAsyncThunk,
   ActionReducerMapBuilder,
 } from "@reduxjs/toolkit";
-import { ethers } from "ethers";
-
+import { BigNumber, ethers } from "ethers";
+import { RootState } from '../../store';
 interface initialStateType {
   isAccountExist: boolean;
   publicKey: any;
   isInformationDialog: boolean;
-  balance: any;
-  allowanceBalance: any;
-  amount: any;
+  balance: number;
+  allowanceBalance: number;
+  amount: number;
 }
 
 declare global {
@@ -35,12 +36,15 @@ export const getContract = createAsyncThunk(
         const provider = new ethers.providers.Web3Provider(window.ethereum);
         const contract = new ethers.Contract(myusdc, usdcMockABI, provider);
 
-        const balance = await contract.balanceOf(address);
-        const allowanceBalance = await contract.allowance(
+        const balance : BigNumber = await contract.balanceOf(address);
+        const allowanceBalance : BigNumber = await contract.allowance(
           address,
           receiveUsdcAddress
         );
-        const obj = { balance, allowanceBalance };
+
+        let balanceNumber = balance.toNumber();
+        let allowanceBalanceNumber = allowanceBalance.toNumber();
+        const obj = { balanceNumber, allowanceBalanceNumber };
         return obj;
       }
     } catch (error) {
@@ -53,7 +57,7 @@ export const sendContract = createAsyncThunk(
   "data/sendContract",
   async (
     params: { amount: number | string; account: string | undefined },
-    { rejectWithValue }
+    { dispatch, getState, rejectWithValue }
   ) => {
     try {
       const { amount, account } = params;
@@ -69,16 +73,27 @@ export const sendContract = createAsyncThunk(
 
         provider.getGasPrice();
 
-        const count = await ethers.utils.parseUnits(amount.toString(), 6);
+        const amountFull = await ethers.utils.parseUnits(amount.toString(), 6);
+        const state: RootState = getState() as RootState;
+        const allowanceBalance = ethers.BigNumber.from(state.dataSlice.allowanceBalance);
+
+        
+        // if(amountFull.gt(allowanceBalance)){
+        //   const myUsdcContract = new ethers.Contract(myusdc, usdcMockABI, signer);
+        //   const tx = await myUsdcContract.approve(receiveUsdcAddress, amountFull);
+        //   await tx.wait();
+        // }
 
         try {
-          const data = await contract.receiveUSDC(count, {
+          const data = await contract.receiveUSDC(amountFull, {
             gasLimit: 310000,
             gasPrice: provider.getGasPrice(),
             nonce: null,
           });
           await data.wait();
+          dispatch(setToast({ message: "Transaction is successfull", type: "success" }));
         } catch (error) {
+          dispatch(setToast({ message: "Error occurred", type: "error" }));
           console.log(error, "hata");
         }
 
@@ -93,7 +108,7 @@ export const approve = createAsyncThunk(
   "data/approve",
   async (
     params: { amount: number | string; account: string | undefined },
-    { rejectWithValue }
+    { dispatch, rejectWithValue }
   ) => {
     try {
       const { amount, account } = params;
@@ -106,9 +121,15 @@ export const approve = createAsyncThunk(
         const tx = await myUsdcContract.approve(receiveUsdcAddress, count);
         await tx.wait();
 
+        const newAllowanceBalance = await myUsdcContract.allowance(account, receiveUsdcAddress);
+        let newAllowanceBalanceNumber = newAllowanceBalance.toNumber();
+        dispatch(setToast({ message: "Approved", type: "success" }));
+        return newAllowanceBalanceNumber;
+
         // return balance;
       }
     } catch (error) {
+      dispatch(setToast({ message: "Error occurred", type: "error" }));
       rejectWithValue(error);
     }
   }
@@ -153,11 +174,13 @@ export const dataSlice = createSlice({
   extraReducers: (builder: ActionReducerMapBuilder<any>) => {
     builder
       .addCase(getContract.fulfilled, (state, action: any) => {
-        const { balance, allowanceBalance } = action.payload;
-        state.balance = balance;
-        state.allowanceBalance = allowanceBalance;
+        const { balanceNumber, allowanceBalanceNumber } = action.payload;
+        state.balance = balanceNumber;
+        state.allowanceBalance = allowanceBalanceNumber;
       })
-      .addCase(getContract.rejected, (state) => {});
+      .addCase(getContract.rejected, (state) => {
+        // toast.error("User rejected");
+      });
   },
 });
 
@@ -168,5 +191,9 @@ export const {
   setResetBalance,
   setAmount,
 } = dataSlice.actions;
+
+export const selectBalance = (state: RootState) => ethers.BigNumber.from(state.dataSlice.balance);
+export const selectAllowanceBalance = (state: RootState) => ethers.BigNumber.from(state.dataSlice.allowanceBalance);
+export const selectAmount = (state: RootState) => ethers.BigNumber.from(state.dataSlice.amount);
 
 export default dataSlice.reducer;
