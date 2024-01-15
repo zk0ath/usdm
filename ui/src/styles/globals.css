@@ -75,3 +75,15 @@ input[type="number"] {
   ); */
   background: #f4f5f6;
 }
+
+@keyframes moveDots {
+  to {
+    background-position: 100% 0;
+  }
+}
+
+.animatedDottedLine {
+  background: linear-gradient(to right, #77BF3D 50%, transparent 50%);
+  background-size: 20px 2px;
+  animation: moveDots 1s linear infinite;
+}

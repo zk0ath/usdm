@@ -1,4 +1,4 @@
-import { setToast } from './../toastSlice';
+import { setToast } from "./../toastSlice";
 import {
   myusdc,
   receiveUsdcABI,
@@ -12,7 +12,7 @@ import {
   ActionReducerMapBuilder,
 } from "@reduxjs/toolkit";
 import { BigNumber, ethers } from "ethers";
-import { RootState } from '../../store';
+import { RootState } from "../../store";
 interface initialStateType {
   isAccountExist: boolean;
   publicKey: any;
@@ -36,8 +36,8 @@ export const getContract = createAsyncThunk(
         const provider = new ethers.providers.Web3Provider(window.ethereum);
         const contract = new ethers.Contract(myusdc, usdcMockABI, provider);
 
-        const balance : BigNumber = await contract.balanceOf(address);
-        const allowanceBalance : BigNumber = await contract.allowance(
+        const balance: BigNumber = await contract.balanceOf(address);
+        const allowanceBalance: BigNumber = await contract.allowance(
           address,
           receiveUsdcAddress
         );
@@ -71,29 +71,43 @@ export const sendContract = createAsyncThunk(
           signer
         );
 
-        provider.getGasPrice();
+        // provider.getGasPrice();
+        const currentGasPrice = await provider.getGasPrice();
+        const adjustedGasPrice = currentGasPrice.mul(2);
 
         const amountFull = await ethers.utils.parseUnits(amount.toString(), 6);
         const state: RootState = getState() as RootState;
-        const allowanceBalance = ethers.BigNumber.from(state.dataSlice.allowanceBalance);
-
-        
-        // if(amountFull.gt(allowanceBalance)){
-        //   const myUsdcContract = new ethers.Contract(myusdc, usdcMockABI, signer);
-        //   const tx = await myUsdcContract.approve(receiveUsdcAddress, amountFull);
-        //   await tx.wait();
-        // }
 
         try {
           const data = await contract.receiveUSDC(amountFull, {
             gasLimit: 310000,
-            gasPrice: provider.getGasPrice(),
+            gasPrice: adjustedGasPrice,
             nonce: null,
           });
-          await data.wait();
-          const newAllowanceBalance = await contract.allowance(account, receiveUsdcAddress);
+          let result = await data.wait();
+          const myUsdcContract = new ethers.Contract(myusdc, usdcMockABI, signer);
+          const newAllowanceBalance = await myUsdcContract.allowance(
+            account,
+            receiveUsdcAddress
+          );
           let newAllowanceBalanceNumber = newAllowanceBalance.toNumber();
-          dispatch(setToast({ message: "Transaction is successfull", type: "success" }));
+          dispatch(
+            setToast({ message: "Transaction is successfull", type: "success" })
+          );
+          const acc: string[] | any = await (window as any).mina.getAccounts()
+          const url = "http://localhost:3000/startTransfer";
+          const body = {
+            txHash: result.transactionHash,
+            minaPublickKey: acc[0],
+          };
+          const response = await fetch(url, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(body),
+          });
+
           return newAllowanceBalanceNumber;
         } catch (error) {
           dispatch(setToast({ message: "Error occurred", type: "error" }));
@@ -124,7 +138,10 @@ export const approve = createAsyncThunk(
         const tx = await myUsdcContract.approve(receiveUsdcAddress, count);
         await tx.wait();
 
-        const newAllowanceBalance = await myUsdcContract.allowance(account, receiveUsdcAddress);
+        const newAllowanceBalance = await myUsdcContract.allowance(
+          account,
+          receiveUsdcAddress
+        );
         let newAllowanceBalanceNumber = newAllowanceBalance.toNumber();
         dispatch(setToast({ message: "Approved", type: "success" }));
         return newAllowanceBalanceNumber;
@@ -145,6 +162,7 @@ const initialState = {
   balance: 0,
   allowanceBalance: 0,
   amount: 0,
+  isSendingContract: false,
 };
 
 export const dataSlice = createSlice({
@@ -180,14 +198,18 @@ export const dataSlice = createSlice({
         const { balanceNumber, allowanceBalanceNumber } = action.payload;
         state.balance = balanceNumber;
         state.allowanceBalance = allowanceBalanceNumber;
+        state.isSendingContract = false;
       })
       .addCase(approve.fulfilled, (state, action: any) => {
         state.allowanceBalance = action.payload;
+        state.isSendingContract = false;
       })
       .addCase(sendContract.fulfilled, (state, action: any) => {
         state.allowanceBalance = action.payload;
+        state.isSendingContract = true;
       })
-      .addCase(getContract.rejected, (state) => {
+      .addCase(sendContract.rejected, (state) => {
+        state.isSendingContract = true;
         // toast.error("User rejected");
       });
   },
@@ -201,8 +223,11 @@ export const {
   setAmount,
 } = dataSlice.actions;
 
-export const selectBalance = (state: RootState) => ethers.BigNumber.from(state.dataSlice.balance);
-export const selectAllowanceBalance = (state: RootState) => ethers.BigNumber.from(state.dataSlice.allowanceBalance);
-export const selectAmount = (state: RootState) => ethers.BigNumber.from(state.dataSlice.amount);
+export const selectBalance = (state: RootState) =>
+  ethers.BigNumber.from(state.dataSlice.balance);
+export const selectAllowanceBalance = (state: RootState) =>
+  ethers.BigNumber.from(state.dataSlice.allowanceBalance);
+export const selectAmount = (state: RootState) =>
+  ethers.BigNumber.from(state.dataSlice.amount);
 
 export default dataSlice.reducer;

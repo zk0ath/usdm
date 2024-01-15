@@ -214,15 +214,16 @@ export const ChangeChain: FC<IIcons> = ({ width, height, fillColor }) => (
     />
   </svg>
 );
-export const DottedLine: FC<IIcons> = ({ width, height, fillColor }) => (
+export const DottedLine: FC<IIcons & { animated?: boolean }> = ({ width, height, fillColor, animated = false }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
-    width="250"
-    height="2"
+    width={width || "250"}
+    height={height || "2"}
     viewBox="0 0 250 2"
     fill="none"
+    className={animated ? 'animatedDottedLine' : ''}
   >
-    <path d="M0 1H249.25" stroke="#788691" strokeDasharray="3 3" />
+    <path d="M0 1H249.25" stroke={animated ? "#77BF3D" : "#788691"} strokeDasharray="3 3" />
   </svg>
 );
 export const TelegramLogo: FC<IIcons> = ({ width, height, fillColor }) => (

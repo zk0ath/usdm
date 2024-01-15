@@ -36,7 +36,7 @@ export default function App({ Component, pageProps }: AppProps) {
         <DAppProvider config={config}>
           <Navigation />
           <ToastContainer
-            position="bottom-right"
+            position="top-right"
             autoClose={5000}
             hideProgressBar={false}
             newestOnTop={false}
