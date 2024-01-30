@@ -16,6 +16,7 @@ import {
   getContract,
   sendContract,
   setResetBalance,
+  setAmount,
 } from "@/store/dataSlice";
 import { debounce } from "lodash";
 import { toast } from "react-toastify";
@@ -26,9 +27,9 @@ const From = () => {
   const allowanceBalance = useAppSelector(
     (state) => state.dataSlice.allowanceBalance
   );
+  const amount = useAppSelector((state) => state.dataSlice.amount);
 
   const [showMoreButtons, setShowMoreButtons] = useState(false);
-  const [amount, setAmount] = useState(0);
   const [showApprove, setShowApprove] = useState(false);
   const { activateBrowserWallet, account, deactivate } = useEthers();
 

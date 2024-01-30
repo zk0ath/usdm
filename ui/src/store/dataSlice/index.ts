@@ -18,6 +18,7 @@ interface initialStateType {
   isInformationDialog: boolean;
   balance: any;
   allowanceBalance: any;
+  amount: any;
 }
 
 declare global {
@@ -119,6 +120,7 @@ const initialState = {
   isInformationDialog: false,
   balance: 0,
   allowanceBalance: 0,
+  amount: 0,
 };
 
 export const dataSlice = createSlice({
@@ -138,6 +140,9 @@ export const dataSlice = createSlice({
       state.balance = 0;
     },
 
+    setAmount: (state: initialStateType, action: PayloadAction<any>) => {
+      state.amount = action.payload;
+    },
     setIsInformationDialogOpen: (
       state: initialStateType,
       action: PayloadAction<any>
@@ -161,6 +166,7 @@ export const {
   setPublicKey,
   setIsInformationDialogOpen,
   setResetBalance,
+  setAmount,
 } = dataSlice.actions;
 
 export default dataSlice.reducer;
