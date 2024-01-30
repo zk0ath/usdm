@@ -57,7 +57,9 @@ export default function Home() {
         <button
           style={{ color: "#fff" }}
           onClick={handleSendContract}
-          className="w-full h-[56px] mt-[24px] rounded-[16px] text-sm font-lexend font-normal bg-[#8BB7A2] flex items-center justify-center"
+          className={`w-full h-[56px] mt-[24px] rounded-[16px] text-sm font-lexend font-normal ${
+            amount > 0 ? "bg-[#619079]" : "bg-[#8BB7A2]"
+          } flex items-center justify-center`}
         >
           Confirm
         </button>
