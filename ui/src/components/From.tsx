@@ -86,7 +86,7 @@ const From = () => {
   }, 2000);
 
   const handleAmount = (e: any) => {
-    setAmount(e.target.value);
+    dispatch(setAmount(e.target.value));
   };
 
   useEffect(() => {
