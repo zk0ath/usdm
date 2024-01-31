@@ -119,14 +119,14 @@ const To = () => {
         <div className="flex items-center">
           <span
             style={{ color: "#090A0B" }}
-            className="text-sm font-normal overflow-hidden font-inter lining-nums proportional-nums"
+            className="overflow-hidden text-sm font-normal font-inter lining-nums proportional-nums"
           >
             To
           </span>
           <div className="w-[73px] ml-4 h-[24px] border flex items-center justify-center rounded-[8px] border-[#8BB7A2] ">
             <span
               style={{ color: "#8BB7A2" }}
-              className="text-xs font-normal overflow-hidden font-inter lining-nums proportional-nums"
+              className="overflow-hidden text-xs font-normal font-inter lining-nums proportional-nums"
             >
               Mina
             </span>
@@ -137,9 +137,9 @@ const To = () => {
             <MinaLogo width="33" height="33" />
             <span
               style={{ color: "#090A0B" }}
-              className="text-lg ml-2 mr-2 font-semibold font-lexend"
+              className="ml-2 mr-2 text-lg font-semibold font-lexend"
             >
-              Mina
+              Usdm
             </span>
             <ArrowDown width="24px" height="24px" fillColor="#090A0B" />
           </div>
@@ -154,20 +154,20 @@ const To = () => {
           <div className="flex items-start">
             <span
               style={{ color: "#788691" }}
-              className="text-sm mr-2 font-inter font-normal"
+              className="mr-2 text-sm font-normal font-inter"
             >
               Available:
             </span>
             <span
               style={{ color: "#090A0B" }}
-              className="text-sm mr-2 font-inter font-normal"
+              className="mr-2 text-sm font-normal font-inter"
             >
               0 Mina
             </span>
           </div>
           <span
             style={{ color: "#788691" }}
-            className="text-md font-inter font-normal"
+            className="font-normal text-md font-inter"
           >
             =$2.000
           </span>

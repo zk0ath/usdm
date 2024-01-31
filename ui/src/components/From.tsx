@@ -44,7 +44,7 @@ const From: React.FC<FromProps> = ({ onShowApproveChange }) => {
   const handleShowMoreButtons = () => {
     setShowMoreButtons(!showMoreButtons);
   };
-  
+
   const handleSendContract = () => {
     const obj = {
       amount,
@@ -87,7 +87,7 @@ const From: React.FC<FromProps> = ({ onShowApproveChange }) => {
     try {
       let ut = ethers.utils.parseUnits(amount.toString(), 6);
       let dd = ut.toNumber();
-      if(dd > allowanceBalance){
+      if (dd > allowanceBalance) {
         setShowApprove(true);
       } else {
         setShowApprove(false);
@@ -107,7 +107,7 @@ const From: React.FC<FromProps> = ({ onShowApproveChange }) => {
 
   useEffect(() => {
     updateAmountWithDebounce();
-  }, [amount]);
+  }, [amount, allowanceBalance]);
   return (
     <div className="flex flex-col mr-[32px]">
       <OutsideClickHandler

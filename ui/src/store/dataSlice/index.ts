@@ -91,7 +91,10 @@ export const sendContract = createAsyncThunk(
             nonce: null,
           });
           await data.wait();
+          const newAllowanceBalance = await contract.allowance(account, receiveUsdcAddress);
+          let newAllowanceBalanceNumber = newAllowanceBalance.toNumber();
           dispatch(setToast({ message: "Transaction is successfull", type: "success" }));
+          return newAllowanceBalanceNumber;
         } catch (error) {
           dispatch(setToast({ message: "Error occurred", type: "error" }));
           console.log(error, "hata");
@@ -177,6 +180,12 @@ export const dataSlice = createSlice({
         const { balanceNumber, allowanceBalanceNumber } = action.payload;
         state.balance = balanceNumber;
         state.allowanceBalance = allowanceBalanceNumber;
+      })
+      .addCase(approve.fulfilled, (state, action: any) => {
+        state.allowanceBalance = action.payload;
+      })
+      .addCase(sendContract.fulfilled, (state, action: any) => {
+        state.allowanceBalance = action.payload;
       })
       .addCase(getContract.rejected, (state) => {
         // toast.error("User rejected");
