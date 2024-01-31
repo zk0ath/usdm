@@ -26,7 +26,6 @@
     "@types/react-router-dom": "^5.3.3",
     "@usedapp/core": "^1.2.13",
     "@usedapp/wallet-connect-connector": "^1.0.2",
-    "@zk0ath/usdm-npm-package": "^1.0.1",
     "autoprefixer": "10.4.16",
     "bignumber.js": "^9.1.2",
     "coi-serviceworker": "^0.1.7",
