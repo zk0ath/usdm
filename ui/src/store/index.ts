@@ -5,6 +5,7 @@ import createReducer from "./rootReducer";
 
 const store = configureStore({
   reducer: createReducer,
+  middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(ReduxThunk),
 });
 
 export type RootState = ReturnType<typeof store.getState>;
