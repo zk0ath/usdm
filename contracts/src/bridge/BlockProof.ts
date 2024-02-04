@@ -48,6 +48,11 @@ export class BlockProof extends Struct({
           this.signer.key,
           [block.hash()]
         )
+      )
+      .and(
+        this.signedBlockHeight.equals(
+          block.height
+        )
       );
     };
   };
