@@ -35,4 +35,19 @@ export class BlockProof extends Struct({
     isEmpty(): Bool {
       return this.signer.isEmpty();
     };
+  
+    verify(
+      signerRoot: Field,
+      block: Block,
+    ): Bool {
+      return this.signer.check(
+        signerRoot
+      )
+      .and(
+        this.signedBlockCommitment.verify(
+          this.signer.key,
+          [block.hash()]
+        )
+      );
+    };
   };
