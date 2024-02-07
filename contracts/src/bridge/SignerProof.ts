@@ -26,4 +26,22 @@ export class SignerProof extends Struct({
         Signature.fromBase58(EMPTY_SIGNATURE)
       );
     };
+
+    isEmpty(): Bool {
+      return this.signer.isEmpty();
+    };
+  
+    verify(
+      signerRoot: Field,
+      signer: Signer,
+    ): Bool {
+      return this.signer.check(
+        signerRoot
+      ).and(
+        this.signedSignerPublicKey.verify(
+          this.signer.key,
+          [signer.hash()]
+        )
+      );
+    };
   };
