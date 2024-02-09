@@ -64,6 +64,68 @@ export class BridgeContract extends SmartContract {
         let allValid = Bool(true);
         let currSignerCount = Field(0); // Number of Signers signed this proof.
     
-        
+        for (let i = 0; i < 200; i++) {
+          const proof = newBlockProvers.proofs[i];
+    
+          let countOfSigners = Field(0); // This should stay 0 for all signers if all signers are unique.
+    
+          // Go through the array to see if this public key is already added.
+          for (let i = 0; i < 200; i++)
+            countOfSigners = countOfSigners.add(
+              Provable.if(
+                newBlockProvers.signers[i].equals(proof.signer.key),
+                Field(1),
+                Field(0)
+              )
+            );
+    
+          newBlockProvers.signers[i] = proof.signer.key; // Used once, so add it to the list.
+    
+          allValid = allValid.and(
+            Bool.or(
+              proof.isEmpty(),
+              Bool.and(
+                proof.verify(
+                  signersTree,
+                  newBlock
+                ),
+                countOfSigners.equals(Field(0))
+              )
+            )
+          );
+    
+          currSignerCount = currSignerCount.add(
+            Provable.if(
+              proof.isEmpty(),
+              Field(0),
+              Field(1)
+            )
+          );
+    
+          // This line is not working since right now you can only dispatch 100 Field elements inside a @method, and number of signers can be more than 100.
+          // this.reducer.dispatch(proof.signer); // Update the signer state with the new `signingCount`.
+        };
+    
+        allValid.assertEquals(Bool(true)); // Check no validity check has failed.
+        currSignerCount.mul(Field(100)).assertGreaterThanOrEqual(signerCount.mul(Field(60))); // More than REQUIRED_MIN_SIGNING_RATIO_FOR_BLOCK_UPDATE % of signers should sign the `BlockProof`.
+    
+        // As we cannot dispatch more than 100 Field elements inside a @method, no need for this code right now.
+        // The contract works as expected without the reducer logic, it just does not update the `signingCount` of the Signer nodes.
+        // const { state: newSignersTree, actionState: newSignersTreeAccumulator } = this.reducer.reduce(
+        //   this.reducer.getActions({ fromActionState: signersTreeAccumulator }), // The current accumulator state.
+        //   Field, // State type - merkle root
+        //   (state: Field, action: Signer) => {
+        //     action = action.sign(); // Add 1 signing to the signer.
+        //     return action.witness.calculateRoot(action.hash()); // Update the merkle tree state.
+        //   },
+        //   { state: signersTree, actionState: signersTreeAccumulator }
+        // );
+    
+        const newCelestiaBlocksTree = newBlock.witness.calculateRoot(newBlock.hash()); // The new Celestia merkle tree root hash.
+    
+        this.celestiaBlocksTree.set(newCelestiaBlocksTree);
+        // this.signersTree.set(newSignersTree);
+        // this.signersTreeAccumulator.set(newSignersTreeAccumulator);
+      };
 
   };
