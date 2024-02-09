@@ -1,4 +1,4 @@
-import { Field, Reducer, SmartContract, State, state } from "o1js";
+import { Field, Reducer, SmartContract, State, method, state } from "o1js";
 import { Signer } from "./Signer";
 
 export class BridgeContract extends SmartContract {
@@ -18,5 +18,22 @@ export class BridgeContract extends SmartContract {
       this.signersTree.set(Field(0));
       this.signersTreeAccumulator.set(Reducer.initialActionState);
     };
+
+    @method initialize(
+        celestiaNamespaceHash: Field,
+        initialCelestiaRootHash: Field,
+        initialSignerCount: Field,
+        initialSignerRootHash: Field
+      ) {
+        this.celestiaNamespaceHash.assertEquals(Field(0));
+        this.celestiaBlocksTree.assertEquals(Field(0));
+        this.signerCount.assertEquals(Field(0));
+        this.signersTree.assertEquals(Field(0));
+    
+        this.celestiaNamespaceHash.set(celestiaNamespaceHash);
+        this.celestiaBlocksTree.set(initialCelestiaRootHash);
+        this.signerCount.set(initialSignerCount);
+        this.signersTree.set(initialSignerRootHash);
+      };
 
   };
