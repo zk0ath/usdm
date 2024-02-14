@@ -8,7 +8,7 @@ export class BlockProofList extends Struct({
     constructor(
       proofs: BlockProof[]
     ) {
-      const signers = Array.from({ length: 200 }, () => PublicKey.fromBase58("EMPTY"));
+      const signers = Array.from({ length: 200 }, () => PublicKey.fromBase58("B62qrhCn7DK2b4pzbJCAxxBN1cyVAyLgN2JZDe67EV76oneJbyiCfDh"));
   
       super({
         proofs,

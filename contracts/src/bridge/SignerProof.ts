@@ -2,7 +2,7 @@ import { Bool, Field, Signature, Struct } from "o1js";
 import { Signer } from "./Signer";
 
 
-const EMPTY_SIGNATURE = "";
+const EMPTY_SIGNATURE = "7mXRxyZzn511bfSEnPyWj5jqMBYssxAhTwa81Zb1p4bc4KANxMyJ9CsfHUZ64wTE28kbBZ6UcCWuotQk4TxuYdnQvZcJXKdC";
 
 export class SignerProof extends Struct({
     signer: Signer,

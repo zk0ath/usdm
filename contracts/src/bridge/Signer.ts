@@ -23,7 +23,7 @@ export class Signer extends Struct({
   
     static empty() {
       return new Signer(
-        PublicKey.fromBase58("PUBLIC_KEY_PLACEHOLDER"),
+        PublicKey.fromBase58("B62qrhCn7DK2b4pzbJCAxxBN1cyVAyLgN2JZDe67EV76oneJbyiCfDh"),
         SignerMerkleWitnessClass.empty(),
         Field(0)
       );
@@ -42,7 +42,7 @@ export class Signer extends Struct({
     };
   
     isEmpty(): Bool {
-      return this.key.equals(PublicKey.fromBase58("PUBLIC_KEY_PLACEHOLDER"));
+      return this.key.equals(PublicKey.fromBase58("B62qrhCn7DK2b4pzbJCAxxBN1cyVAyLgN2JZDe67EV76oneJbyiCfDh"));
     };
   
     sign(): Signer {

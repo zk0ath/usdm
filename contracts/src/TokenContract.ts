@@ -38,14 +38,14 @@ export class TokenContract extends SmartContract {
   }
 
   onlyOwner() {
-    this.owner.getAndRequireEquals().assertEquals(this.sender);
+    this.owner.getAndAssertEquals().assertEquals(this.sender);
   }
 
   @method mint(receiverAddress: PublicKey, amount: UInt64) {
     this.onlyOwner();
-    const maxSupply = this.maxSupply.getAndRequireEquals();
+    const maxSupply = this.maxSupply.getAndAssertEquals();
     const circulatingSupply =
-      this.totalAmountInCirculation.getAndRequireEquals();
+      this.totalAmountInCirculation.getAndAssertEquals();
 
     const newCirculatingSupply = circulatingSupply.add(amount);
 
@@ -61,9 +61,9 @@ export class TokenContract extends SmartContract {
 
   @method burn(burnerAddress: PublicKey, amount: UInt64) {
     this.onlyOwner();
-    const maxSupply = this.maxSupply.getAndRequireEquals();
+    const maxSupply = this.maxSupply.getAndAssertEquals();
     const circulatingSupply =
-      this.totalAmountInCirculation.getAndRequireEquals();
+      this.totalAmountInCirculation.getAndAssertEquals();
 
     const newCirculatingSupply = circulatingSupply.sub(amount);
     newCirculatingSupply.assertLessThanOrEqual(maxSupply);

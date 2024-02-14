@@ -29,12 +29,7 @@ const celestiaData: string[] = [];
 const FORMATTED_CHAR_LENGTH = 4;
 
 function formatChar(_char: string) {
-    let char = _char;
-
-    while (char.length < FORMATTED_CHAR_LENGTH)
-        char = '0' + char;
-
-    return char;
+    return _char.padStart(FORMATTED_CHAR_LENGTH, '0');
 };
 
 function formatCharCode(charCode: number) {
@@ -42,13 +37,7 @@ function formatCharCode(charCode: number) {
 };
 
 function stringToBigInt(str: string) {
-    let resultString = '';
-
-    str.trim().split('').forEach(char => {
-        resultString += formatChar(formatCharCode(char.charCodeAt(0)));
-    });
-
-    return BigInt(resultString) % Field.ORDER;
+    return BigInt(str.trim().split('').map(char => formatChar(formatCharCode(char.charCodeAt(0)))).join('')) % Field.ORDER;
 };
 
 function pushToCelestia(str: string): number {
@@ -56,25 +45,13 @@ function pushToCelestia(str: string): number {
     return celestiaData.length - 1;
 };
 
-function signBlock(
-    signerPrivateKey: PrivateKey,
-    block: Block
-): Signature {
-    // console.log(stringToBigInt(celestiaData[0]));
-    // console.log(block.data.toBigInt());
-    // console.log(block.height.toBigInt());
-
-    const dataPoint = celestiaData.find((each, index) => stringToBigInt(each) == block.commitment.toBigInt() && BigInt(index) == block.height.toBigInt());
-    if (!dataPoint)
-        throw new Error(`No data point found for this height.`);
-
+function signBlock(signerPrivateKey: PrivateKey, block: Block): Signature {
+    const dataPoint = celestiaData.find((each, index) => stringToBigInt(each) === block.commitment.toBigInt() && BigInt(index) === block.height.toBigInt());
+    if (!dataPoint) throw new Error(`No data point found for this height.`);
     return Signature.create(signerPrivateKey, [block.hash()]);
 };
 
-function signSigner(
-    signerPrivateKey: PrivateKey,
-    signer: Signer
-): Signature {
+function signSigner(signerPrivateKey: PrivateKey, signer: Signer): Signature {
     return Signature.create(signerPrivateKey, [signer.hash()]);
 };
 
@@ -98,36 +75,32 @@ describe('Test', () => {
     beforeEach(async () => {
         const Local = Mina.LocalBlockchain({ proofsEnabled });
         Mina.setActiveInstance(Local);
-        ({ privateKey: deployerKey, publicKey: deployerAccount } =
-            Local.testAccounts[0]);
-        ({ privateKey: senderKey, publicKey: senderAccount } =
-            Local.testAccounts[1]);
+        ({ privateKey: deployerKey, publicKey: deployerAccount } = Local.testAccounts[0]);
+        ({ privateKey: senderKey, publicKey: senderAccount } = Local.testAccounts[1]);
         zkAppPrivateKey = PrivateKey.random();
         zkAppAddress = zkAppPrivateKey.toPublicKey();
         zkApp = new BridgeContract(zkAppAddress);
 
-        for (let i = 2; i < 2 + SIGNER_COUNT; i++)
-            signerPrivateKeys[i - 2] = Local.testAccounts[i].privateKey;
+        signerPrivateKeys.slice(2, 2 + SIGNER_COUNT).forEach((_, i) => {
+            signerPrivateKeys[i] = Local.testAccounts[i + 2].privateKey;
+        });
 
         await localDeploy();
-
-        // Initialize the contract with the given values
 
         const celestiaTree = new MerkleTree(MAX_CELESTIA_MERKLE_TREE_HEIGHT);
         const signerTree = new MerkleTree(MAX_SIGNER_MERKLE_TREE_HEIGHT);
 
-        for (let i = 0; i < 100; i++)
-            celestiaTree.setLeaf(BigInt(i), Block.empty().hash());
+        for (let i = 0; i < 100; i++) celestiaTree.setLeaf(BigInt(i), Block.empty().hash());
 
-        for (let i = 0; i < SIGNER_COUNT; i++) {
-            signerTree.setLeaf(BigInt(i), new Signer(
-                signerPrivateKeys[i].toPublicKey(),
-                SignerMerkleWitnessClass.empty(), // Hash does not depend on the witness, so this is fine.
-                Field(0)
-            ).hash());
-        }
-        for (let i = SIGNER_COUNT; i < MAX_SIGNER_COUNT; i++)
-            signerTree.setLeaf(BigInt(i), Signer.empty().hash());
+        Array.from({ length: SIGNER_COUNT }, (_, i) => new Signer(
+            signerPrivateKeys[i].toPublicKey(),
+            SignerMerkleWitnessClass.empty(),
+            Field(0)
+        )).forEach((signer, i) => {
+            signerTree.setLeaf(BigInt(i), signer.hash());
+        });
+
+        for (let i = SIGNER_COUNT; i < MAX_SIGNER_COUNT; i++) signerTree.setLeaf(BigInt(i), Signer.empty().hash());
 
         const txn = await Mina.transaction(deployerAccount, () => {
             zkApp.initialize(
@@ -147,7 +120,6 @@ describe('Test', () => {
             zkApp.deploy();
         });
         await txn.prove();
-        // this tx needs .signBlock(), because `deploy()` adds an account update that requires signature authorization
         await txn.sign([deployerKey, zkAppPrivateKey]).send();
     };
 

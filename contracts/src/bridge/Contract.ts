@@ -289,7 +289,7 @@ export class BridgeContract extends SmartContract {
     };
 
     allValid.assertEquals(Bool(true)); // Check no validity check has failed.
-    currSignerCount.mul(Field(100)).assertGreaterThanOrEqual(signerCount.mul(Field(REQUIRED_MIN_SIGNING_RATIO_FOR_SIGNER_UPDATE))); // More than REQUIRED_MIN_SIGNING_RATIO_FOR_BLOCK_UPDATE % of signers should sign the `SignerProof`.
+    currSignerCount.mul(Field(100)).assertGreaterThanOrEqual(signerCount.mul(Field(60))); // More than REQUIRED_MIN_SIGNING_RATIO_FOR_BLOCK_UPDATE % of signers should sign the `SignerProof`.
 
     // As we cannot dispatch more than 100 Field elements inside a @method, no need for this code right now.
     // The contract works as expected without the reducer logic, it just does not update the `signingCount` of the Signer nodes.

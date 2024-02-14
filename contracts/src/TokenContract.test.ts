@@ -54,13 +54,13 @@ class BlockchainHandler {
     await tx.prove();
     tx.sign([userPrivKey, this.contractPrivateKey]);
     await tx.send();
-    this.tokenContract.symbol.getAndRequireEquals().assertEquals(Field(0));
-    this.tokenContract.decimals.getAndRequireEquals().assertEquals(UInt64.zero);
+    this.tokenContract.symbol.getAndAssertEquals().assertEquals(Field(0));
+    this.tokenContract.decimals.getAndAssertEquals().assertEquals(UInt64.zero);
     this.tokenContract.maxSupply
-      .getAndRequireEquals()
+      .getAndAssertEquals()
       .assertEquals(UInt64.zero);
     this.tokenContract.totalAmountInCirculation
-      .getAndRequireEquals()
+      .getAndAssertEquals()
       .assertEquals(UInt64.zero);
   }
 
