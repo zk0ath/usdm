@@ -9,7 +9,7 @@ export class SignerProofList extends Struct({
     constructor(
       proofs: SignerProof[]
     ) {
-      const signers = Array.from({ length: 200 }, () => PublicKey.fromBase58(""));
+      const signers = Array.from({ length: 200 }, () => PublicKey.fromBase58("B62qrhCn7DK2b4pzbJCAxxBN1cyVAyLgN2JZDe67EV76oneJbyiCfDh"));
   
       super({
         proofs,

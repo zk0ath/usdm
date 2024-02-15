@@ -64,7 +64,7 @@ describe('Test', () => {
         zkAppPrivateKey: PrivateKey,
         zkApp: BridgeContract;
 
-    const NAMESPACE = stringToBigInt('Photon');
+    const NAMESPACE = stringToBigInt('Bridge');
     const SIGNER_COUNT = 5;
     const signerPrivateKeys = Array.from({ length: SIGNER_COUNT + 1 }, _ => PrivateKey.random()); // An extra one for the new Signer test
 
@@ -317,6 +317,93 @@ describe('Test', () => {
     // Update local Signer tree
     // signerTree.setLeaf(BigInt(0), signers[0].sign().hash());
     // signerTree.setLeaf(BigInt(1), signers[1].sign().hash());
+
+    // Check the new Celestia Merkle Tree root
+    expect(zkApp.celestiaBlocksTree.get()).toThrow();
+
+    // Check the new Signer Merkle Tree root
+    // expect(zkApp.signersTree.get()).toEqual(signerTree.getRoot());
+  });
+
+  it('Test 4: Duplicate signer test. Add a invalid block to the Celestia Merkle Tree and check the state is not updated.', async () => {
+    const newData = "New data json. In real life, this would be a block commitment.";
+
+    // Generate Celestia Tree
+    const celestiaTree = new MerkleTree(MAX_CELESTIA_MERKLE_TREE_HEIGHT);
+    for (let i = 0; i < celestiaData.length; i++)
+      celestiaTree.setLeaf(BigInt(i), Poseidon.hash([Field(stringToBigInt(celestiaData[i]))]));
+
+    // Push to Celestia
+    const height = pushToCelestia(newData);
+
+    // Create the new block
+    const newBlock = new Block(
+      Field(stringToBigInt(newData)),
+      Field(height),
+      new CelestiaMerkleWitnessClass(celestiaTree.getWitness(BigInt(height)))
+    );
+
+    // Create the Signer Tree
+    const signers = Array.from({ length: SIGNER_COUNT }, (_, i) => new Signer(
+      signerPrivateKeys[i].toPublicKey(),
+      SignerMerkleWitnessClass.empty(), // Hash does not depend on the witness, so this is fine.
+      Field(0)
+    ));
+    const signerTree = new MerkleTree(MAX_SIGNER_MERKLE_TREE_HEIGHT);
+    for (let i = 0; i < SIGNER_COUNT; i++)
+      signerTree.setLeaf(BigInt(i), signers[i].hash());
+    for (let i = SIGNER_COUNT; i < MAX_SIGNER_COUNT; i++)
+      signerTree.setLeaf(BigInt(i), Signer.empty().hash());
+    for (let i = 0; i < SIGNER_COUNT; i++) {
+      signers[i] = new Signer(
+        signerPrivateKeys[i].toPublicKey(),
+        new SignerMerkleWitnessClass(signerTree.getWitness(BigInt(i))),
+        Field(0)
+      );
+    }
+
+    // Access the Node API: Get the singed block hash from the first 3 signers
+    const signedBlockHash1 = signBlock(
+      signerPrivateKeys[0],
+      newBlock
+    );
+    const signedBlockHash2 = signBlock(
+      signerPrivateKeys[1],
+      newBlock
+    );
+    const signedBlockHash3 = signBlock( // Same as signedBlockHash2
+      signerPrivateKeys[1],
+      newBlock
+    );
+    // Create proofs using signed data and signer information
+    const proof1 = new BlockProof(
+      signers[0],
+      signedBlockHash1,
+      Field(height)
+    );
+    const proof2 = new BlockProof(
+      signers[1],
+      signedBlockHash2,
+      Field(height)
+    );
+    const proof3 = new BlockProof(
+      signers[2],
+      signedBlockHash3,
+      Field(height)
+    );
+
+    // Send the transaction
+    const txn = await Mina.transaction(deployerAccount, () => {
+      zkApp.update(
+        newBlock,
+        proof1,
+        proof2,
+        proof3,
+        BlockProof.empty(), BlockProof.empty(), BlockProof.empty(), BlockProof.empty(), BlockProof.empty(), BlockProof.empty(), BlockProof.empty(), BlockProof.empty(), BlockProof.empty(), BlockProof.empty(), BlockProof.empty(), BlockProof.empty(), BlockProof.empty(), BlockProof.empty(), BlockProof.empty(), BlockProof.empty(), BlockProof.empty()
+      );
+    });
+    await txn.prove();
+    await txn.sign([deployerKey, zkAppPrivateKey]).send();
 
     // Check the new Celestia Merkle Tree root
     expect(zkApp.celestiaBlocksTree.get()).toThrow();
