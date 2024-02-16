@@ -15,6 +15,7 @@ import { Block } from './Block';
 import { SignerMerkleWitnessClass } from './SignerMerkleWitnessClass';
 import { CelestiaMerkleWitnessClass } from './CelestiaMerkleWitnessClass';
 import { BlockProof } from './BlockProof';
+import { SignerProof } from './SignerProof';
 
 
 let proofsEnabled = false;
@@ -410,5 +411,81 @@ describe('Test', () => {
 
     // Check the new Signer Merkle Tree root
     // expect(zkApp.signersTree.get()).toEqual(signerTree.getRoot());
+  });
+
+  it('Test 5: Add a valid signer to the Signer Merkle Tree and check the state is updated as expected.', async () => {
+     // Create the new Signer
+    const newSigner = new Signer(
+      signerPrivateKeys[SIGNER_COUNT].toPublicKey(),
+      SignerMerkleWitnessClass.empty(),
+      Field(0)
+    );
+
+    // Create the Signer Tree
+    const signers = Array.from({ length: SIGNER_COUNT }, (_, i) => new Signer(
+      signerPrivateKeys[i].toPublicKey(),
+      SignerMerkleWitnessClass.empty(), // Hash does not depend on the witness, so this is fine.
+      Field(0)
+    ));
+    const signerTree = new MerkleTree(MAX_SIGNER_MERKLE_TREE_HEIGHT);
+    for (let i = 0; i < SIGNER_COUNT; i++)
+      signerTree.setLeaf(BigInt(i), signers[i].hash());
+    for (let i = SIGNER_COUNT; i < MAX_SIGNER_COUNT; i++)
+      signerTree.setLeaf(BigInt(i), Signer.empty().hash());
+    for (let i = 0; i < SIGNER_COUNT; i++) {
+      signers[i] = new Signer(
+        signerPrivateKeys[i].toPublicKey(),
+        new SignerMerkleWitnessClass(signerTree.getWitness(BigInt(i))),
+        Field(0)
+      );
+    }
+
+    newSigner.witness = new SignerMerkleWitnessClass(signerTree.getWitness(BigInt(SIGNER_COUNT)));
+
+    // Access the Node API: Get the singed block hash from the first 3 signers
+    const signedBlockHash1 = signSigner(
+      signerPrivateKeys[0],
+      newSigner
+    );
+    const signedBlockHash2 = signSigner(
+      signerPrivateKeys[1],
+      newSigner
+    );
+    const signedBlockHash3 = signSigner(
+      signerPrivateKeys[2],
+      newSigner
+    );
+    // Create proofs using signed data and signer information
+    const proof1 = new SignerProof(
+      signers[0],
+      signedBlockHash1
+    );
+    const proof2 = new SignerProof(
+      signers[1],
+      signedBlockHash2
+    );
+    const proof3 = new SignerProof(
+      signers[2],
+      signedBlockHash3
+    );
+
+    // Send the transaction
+    const txn = await Mina.transaction(deployerAccount, () => {
+      zkApp.register(
+        newSigner,
+        proof1,
+        proof2,
+        proof3,
+        SignerProof.empty(), SignerProof.empty(), SignerProof.empty(), SignerProof.empty(), SignerProof.empty(), SignerProof.empty(), SignerProof.empty(), SignerProof.empty(), SignerProof.empty(), SignerProof.empty(), SignerProof.empty(), SignerProof.empty(), SignerProof.empty(), SignerProof.empty(), SignerProof.empty(), SignerProof.empty(), SignerProof.empty()
+      );
+    });
+    await txn.prove();
+    await txn.sign([deployerKey, zkAppPrivateKey]).send();
+
+    // Update the Signer Merkle Tree
+    signerTree.setLeaf(BigInt(SIGNER_COUNT), newSigner.hash());
+
+    // Check the new Signer Merkle Tree root
+    expect(zkApp.signersTree.get()).toEqual(signerTree.getRoot());
   });
 });
