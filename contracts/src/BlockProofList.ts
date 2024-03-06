@@ -19,3 +19,14 @@ export class BlockProofList extends Struct({
       this.signers = signers;
     };
   };
+
+
+  function fillWithEmptyBlockProofs(
+    [...proofs]: BlockProof[]
+  ): BlockProof[]{
+    const emptyProof = BlockProof.empty();
+  
+    for (let i = proofs.length; i < 1048576; i++)
+      proofs[i] = emptyProof;
+    return proofs;
+  };
