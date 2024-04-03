@@ -23,7 +23,7 @@ export class BlockProof extends Struct({
       this.signedBlockCommitment = signedBlockCommitment;
       this.signedBlockHeight = signedBlockHeight;
     };
-
+  
     static empty(): BlockProof {
       return new BlockProof(
         Signer.empty(),
@@ -31,8 +31,23 @@ export class BlockProof extends Struct({
         Field(0)
       );
     };
-
+  
     isEmpty(): Bool {
       return this.signer.isEmpty();
+    };
+  
+    verify(
+      signerRoot: Field,
+      block: Block,
+    ): Bool {
+      return this.signer.check(
+        signerRoot
+      )
+      .and(
+        this.signedBlockCommitment.verify(
+          this.signer.key,
+          [block.hash()]
+        )
+      );
     };
   };
